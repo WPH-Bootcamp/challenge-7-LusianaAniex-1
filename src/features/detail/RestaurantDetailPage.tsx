@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Star, Share2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -10,9 +10,16 @@ import {
   useDeleteReviewMutation,
 } from '../../shared/api/queries/reviews';
 import { useGeolocation } from '../../shared/hooks/useGeolocation';
-import { getRestaurantDistance, formatDistance } from '../../shared/utils/distance';
+import {
+  getRestaurantDistance,
+  formatDistance,
+} from '../../shared/utils/distance';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, removeItem, updateQuantity } from '../../features/cart/store/cartSlice';
+import {
+  addItem,
+  removeItem,
+  updateQuantity,
+} from '../../features/cart/store/cartSlice';
 import { useAuth } from '../../shared/hooks/useAuth';
 import type { RootState } from '../../app/store';
 import type { MenuItem, Review } from '../../shared/types';
@@ -25,7 +32,6 @@ import ImageWithFallback from '../../shared/components/ImageWithFallback';
 import { useImageGallery } from './hooks/useImageGallery';
 import restaurantPlaceholder from '@/assets/images/restaurant-placeholder.jpg';
 
-
 const RestaurantDetailPage: React.FC = () => {
   const params = useParams();
   const id = params?.id as string | undefined;
@@ -36,7 +42,9 @@ const RestaurantDetailPage: React.FC = () => {
   const { latitude, longitude } = useGeolocation();
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
-  const [selectedMenuFilter, setSelectedMenuFilter] = useState<'all' | 'food' | 'drink'>('all');
+  const [selectedMenuFilter, setSelectedMenuFilter] = useState<
+    'all' | 'food' | 'drink'
+  >('all');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showMoreReviews, setShowMoreReviews] = useState(false);
 
@@ -96,7 +104,6 @@ const RestaurantDetailPage: React.FC = () => {
     if (selectedMenuFilter === 'drink') return menu.category === 'drink';
     return true;
   });
-
 
   // Fallback data for testing if API doesn't return data
   const fallbackMenus: MenuItem[] = [
@@ -332,7 +339,7 @@ const RestaurantDetailPage: React.FC = () => {
                     src={availableImages[currentImageIndex]}
                     alt={restaurant.name}
                     fill
-                    sizes="(max-width: 768px) 100vw, 400px"
+                    sizes='(max-width: 768px) 100vw, 400px'
                     containerClassName='w-full h-full'
                     className='object-cover rounded-2xl'
                     fallbackText='No Image Available'
@@ -381,7 +388,7 @@ const RestaurantDetailPage: React.FC = () => {
                   }
                   alt={restaurant.name}
                   fill
-                  sizes="651px"
+                  sizes='651px'
                   containerClassName='w-full h-full'
                   className='object-cover rounded-2xl'
                   fallbackText='No Image Available'
@@ -401,7 +408,7 @@ const RestaurantDetailPage: React.FC = () => {
                     }
                     alt={restaurant.name}
                     fill
-                    sizes="529px"
+                    sizes='529px'
                     containerClassName='w-full h-full'
                     className='object-cover rounded-2xl'
                     fallbackText='No Image'
@@ -420,7 +427,7 @@ const RestaurantDetailPage: React.FC = () => {
                       }
                       alt={restaurant.name}
                       fill
-                      sizes="255px"
+                      sizes='255px'
                       containerClassName='w-full h-full'
                       className='object-cover rounded-2xl'
                       fallbackText='No Image'
@@ -436,7 +443,7 @@ const RestaurantDetailPage: React.FC = () => {
                       }
                       alt={restaurant.name}
                       fill
-                      sizes="255px"
+                      sizes='255px'
                       containerClassName='w-full h-full'
                       className='object-cover rounded-2xl'
                       fallbackText='No Image'
@@ -474,7 +481,7 @@ const RestaurantDetailPage: React.FC = () => {
                     }
                     alt={restaurant.name}
                     fill
-                    sizes="60px"
+                    sizes='60px'
                     containerClassName='w-full h-full'
                     className='object-cover rounded-full'
                     fallbackText='No Logo'
@@ -594,7 +601,7 @@ const RestaurantDetailPage: React.FC = () => {
                 }
                 alt={restaurant.name}
                 fill
-                sizes="120px"
+                sizes='120px'
                 containerClassName='w-full h-full'
                 className='object-cover'
                 fallbackText='No Logo'

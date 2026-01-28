@@ -4,7 +4,6 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { MenuItem } from '@/features/menu';
 import type { CartItem, CartState } from '../types';
 
 

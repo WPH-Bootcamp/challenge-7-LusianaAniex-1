@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useMemo, useEffect, useState, useCallback } from 'react';
+import React, { useMemo, useLayoutEffect, useState, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Star, ListFilter } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGeolocation } from '../../shared/hooks/useGeolocation';
-import { getRestaurantDistance, formatDistance } from '../../shared/utils/distance';
+import {
+  getRestaurantDistance,
+  formatDistance,
+} from '../../shared/utils/distance';
 import { restaurantsApi } from '../../shared/api/restaurants';
 import RestaurantCard from '../../shared/components/RestaurantCard';
 import ImageWithFallback from '../../shared/components/ImageWithFallback';
@@ -48,7 +51,12 @@ interface FilterCheckboxProps {
   icon?: React.ReactNode;
 }
 
-const FilterCheckbox = ({ checked, onChange, label, icon }: FilterCheckboxProps) => (
+const FilterCheckbox = ({
+  checked,
+  onChange,
+  label,
+  icon,
+}: FilterCheckboxProps) => (
   <div className='flex items-center gap-2 cursor-pointer' onClick={onChange}>
     <div
       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${
@@ -117,7 +125,10 @@ const CategoryPage: React.FC = () => {
   const { latitude, longitude } = useGeolocation();
 
   // ========== STATE ==========
-  const category = params?.category && typeof params.category === 'string' ? params.category : 'all';
+  const category =
+    params?.category && typeof params.category === 'string'
+      ? params.category
+      : 'all';
   const filters = useSelector((state: RootState) => state.filters);
   const urlFilter = searchParams?.get('filter') || null;
 
@@ -149,7 +160,8 @@ const CategoryPage: React.FC = () => {
       const result = await restaurantsApi.getRestaurants({
         page: currentPage,
         limit: 10,
-        location: latitude && longitude ? `${latitude},${longitude}` : undefined,
+        location:
+          latitude && longitude ? `${latitude},${longitude}` : undefined,
       });
       return {
         restaurants: result,
@@ -170,7 +182,8 @@ const CategoryPage: React.FC = () => {
           const result = await restaurantsApi.getRestaurants({
             page,
             limit: 12,
-            location: latitude && longitude ? `${latitude},${longitude}` : undefined,
+            location:
+              latitude && longitude ? `${latitude},${longitude}` : undefined,
           });
           if (result.length === 0) break;
           allFilterResults.push(...result);
@@ -187,7 +200,7 @@ const CategoryPage: React.FC = () => {
 
   // ========== EFFECTS ==========
   // Scroll to top and reset on category change
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
     setAllRestaurants([]);
     setCurrentPage(1);
@@ -196,7 +209,7 @@ const CategoryPage: React.FC = () => {
   }, [category]);
 
   // Auto-apply filters from URL
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (urlFilter && category === 'all') {
       dispatch(clearFilters());
       switch (urlFilter) {
@@ -214,7 +227,7 @@ const CategoryPage: React.FC = () => {
   }, [urlFilter, category, dispatch]);
 
   // Update restaurants when data arrives
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (hasActiveFilters && filterResults && Array.isArray(filterResults)) {
       setAllRestaurants(filterResults);
       setHasMore(false);
@@ -245,8 +258,12 @@ const CategoryPage: React.FC = () => {
     // Apply distance filters
     if (filters.distance.length > 0 && latitude && longitude) {
       filtered = filtered.filter((restaurant) => {
-        if (!restaurant.coordinates?.lat || !restaurant.coordinates?.long) return false;
-        const distance = getRestaurantDistance(restaurant, { latitude, longitude });
+        if (!restaurant.coordinates?.lat || !restaurant.coordinates?.long)
+          return false;
+        const distance = getRestaurantDistance(restaurant, {
+          latitude,
+          longitude,
+        });
         if (distance === null) return false;
 
         return filters.distance.some((d) => {
@@ -290,10 +307,14 @@ const CategoryPage: React.FC = () => {
           if (!restaurantRating) return false;
 
           if (rating === 5) return restaurantRating >= 5.0;
-          if (rating === 4) return restaurantRating >= 4.0 && restaurantRating < 5.0;
-          if (rating === 3) return restaurantRating >= 3.0 && restaurantRating < 4.0;
-          if (rating === 2) return restaurantRating >= 2.0 && restaurantRating < 3.0;
-          if (rating === 1) return restaurantRating >= 1.0 && restaurantRating < 2.0;
+          if (rating === 4)
+            return restaurantRating >= 4.0 && restaurantRating < 5.0;
+          if (rating === 3)
+            return restaurantRating >= 3.0 && restaurantRating < 4.0;
+          if (rating === 2)
+            return restaurantRating >= 2.0 && restaurantRating < 3.0;
+          if (rating === 1)
+            return restaurantRating >= 1.0 && restaurantRating < 2.0;
           return false;
         })
       );
@@ -310,7 +331,7 @@ const CategoryPage: React.FC = () => {
     }
   }, [isLoadingMore, hasMore, isLoading]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleScroll = () => {
       if (
         window.innerHeight + document.documentElement.scrollTop >=
@@ -323,7 +344,8 @@ const CategoryPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loadMore]);
 
-  const handleDistanceToggle = (distance: string) => dispatch(toggleDistance(distance));
+  const handleDistanceToggle = (distance: string) =>
+    dispatch(toggleDistance(distance));
   const handlePriceMinChange = (value: string) => dispatch(setPriceMin(value));
   const handlePriceMaxChange = (value: string) => dispatch(setPriceMax(value));
   const handleRatingToggle = (rating: string) => dispatch(toggleRating(rating));
@@ -336,7 +358,9 @@ const CategoryPage: React.FC = () => {
   // ========== NESTED COMPONENTS ==========
   const MobileRestaurantCard = ({ restaurant }: { restaurant: Restaurant }) => {
     const userLocation = latitude && longitude ? { latitude, longitude } : null;
-    const distance = userLocation ? getRestaurantDistance(restaurant, userLocation) : null;
+    const distance = userLocation
+      ? getRestaurantDistance(restaurant, userLocation)
+      : null;
 
     return (
       <div
@@ -347,7 +371,7 @@ const CategoryPage: React.FC = () => {
           src={restaurant.logo || '/images/restaurant-placeholder.jpg'}
           alt={restaurant.name}
           fill
-          sizes="90px"
+          sizes='90px'
           containerClassName='w-[90px] h-[90px] rounded-xl shrink-0'
           className='object-cover rounded-xl'
           fallbackText='No Logo'
@@ -389,12 +413,25 @@ const CategoryPage: React.FC = () => {
     <>
       {/* Distance Filter */}
       <div>
-        <h3 className={isMobile ? 'font-extrabold text-gray-900 mb-3 text-base' : 'font-extrabold text-gray-900 mb-4 text-lg'}>
+        <h3
+          className={
+            isMobile
+              ? 'font-extrabold text-gray-900 mb-3 text-base'
+              : 'font-extrabold text-gray-900 mb-4 text-lg'
+          }
+        >
           Distance
         </h3>
         <div className={isMobile ? 'space-y-2' : 'space-y-3'}>
           {DISTANCE_OPTIONS.map(({ key, label }) => (
-            <div key={key} className={isMobile ? 'flex items-center gap-2 py-1' : 'flex items-center gap-2'}>
+            <div
+              key={key}
+              className={
+                isMobile
+                  ? 'flex items-center gap-2 py-1'
+                  : 'flex items-center gap-2'
+              }
+            >
               <FilterCheckbox
                 checked={filters.distance.includes(key)}
                 onChange={() => handleDistanceToggle(key)}
@@ -405,11 +442,23 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
 
-      <div className={isMobile ? 'border-t border-gray-300 my-3' : 'border-t border-gray-300 my-6'}></div>
+      <div
+        className={
+          isMobile
+            ? 'border-t border-gray-300 my-3'
+            : 'border-t border-gray-300 my-6'
+        }
+      ></div>
 
       {/* Price Filter */}
       <div>
-        <h3 className={isMobile ? 'font-extrabold text-gray-900 mb-3 text-base' : 'font-extrabold text-gray-900 mb-4 text-lg'}>
+        <h3
+          className={
+            isMobile
+              ? 'font-extrabold text-gray-900 mb-3 text-base'
+              : 'font-extrabold text-gray-900 mb-4 text-lg'
+          }
+        >
           Price
         </h3>
         <div className='space-y-3'>
@@ -426,21 +475,48 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
 
-      <div className={isMobile ? 'border-t border-gray-300 my-3' : 'border-t border-gray-300 my-6'}></div>
+      <div
+        className={
+          isMobile
+            ? 'border-t border-gray-300 my-3'
+            : 'border-t border-gray-300 my-6'
+        }
+      ></div>
 
       {/* Rating Filter */}
       <div>
-        <h3 className={isMobile ? 'font-extrabold text-gray-900 mb-3 text-base' : 'font-extrabold text-gray-900 mb-4 text-lg'}>
+        <h3
+          className={
+            isMobile
+              ? 'font-extrabold text-gray-900 mb-3 text-base'
+              : 'font-extrabold text-gray-900 mb-4 text-lg'
+          }
+        >
           Rating
         </h3>
         <div className={isMobile ? 'space-y-2' : 'space-y-3'}>
           {RATING_OPTIONS.map((rating) => (
-            <div key={rating} className={isMobile ? 'flex items-center gap-2 py-1' : 'flex items-center gap-2 p-2'}>
+            <div
+              key={rating}
+              className={
+                isMobile
+                  ? 'flex items-center gap-2 py-1'
+                  : 'flex items-center gap-2 p-2'
+              }
+            >
               <FilterCheckbox
                 checked={filters.rating.includes(rating.toString())}
                 onChange={() => handleRatingToggle(rating.toString())}
                 label={`${rating}`}
-                icon={<Star className={isMobile ? 'w-5 h-5 text-yellow-400 fill-current' : 'w-6 h-6 text-yellow-400 fill-current'} />}
+                icon={
+                  <Star
+                    className={
+                      isMobile
+                        ? 'w-5 h-5 text-yellow-400 fill-current'
+                        : 'w-6 h-6 text-yellow-400 fill-current'
+                    }
+                  />
+                }
               />
             </div>
           ))}
@@ -463,7 +539,9 @@ const CategoryPage: React.FC = () => {
             onClick={() => setIsMobileSidebarOpen(true)}
             className='flex flex-row justify-between items-center bg-white rounded-xl shadow-[0px_0px_20px_rgba(203,202,202,0.25)] cursor-pointer hover:bg-gray-50 transition-colors w-[361px] h-[52px] p-3'
           >
-            <div className='font-nunito font-extrabold text-sm leading-7 text-gray-900'>Filter</div>
+            <div className='font-nunito font-extrabold text-sm leading-7 text-gray-900'>
+              Filter
+            </div>
             <ListFilter className='w-5 h-5 text-gray-900' />
           </button>
 
@@ -477,19 +555,26 @@ const CategoryPage: React.FC = () => {
             ) : (
               <>
                 {filteredRestaurants.map((restaurant, index) => (
-                  <MobileRestaurantCard key={`${restaurant.id}-${index}`} restaurant={restaurant} />
+                  <MobileRestaurantCard
+                    key={`${restaurant.id}-${index}`}
+                    restaurant={restaurant}
+                  />
                 ))}
 
                 {isLoadingMore && (
                   <div className='flex justify-center items-center py-8 w-full'>
                     <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-red-600'></div>
-                    <span className='ml-3 text-gray-600'>Loading more restaurants...</span>
+                    <span className='ml-3 text-gray-600'>
+                      Loading more restaurants...
+                    </span>
                   </div>
                 )}
 
                 {!hasMore && allRestaurants.length > 0 && (
                   <div className='text-center py-8 w-full'>
-                    <p className='text-gray-500 text-sm'>You've reached the end of the list</p>
+                    <p className='text-gray-500 text-sm'>
+                      You've reached the end of the list
+                    </p>
                   </div>
                 )}
               </>
@@ -499,7 +584,9 @@ const CategoryPage: React.FC = () => {
 
         {/* Desktop Layout */}
         <div className='hidden md:block'>
-          <h1 className='text-3xl font-extrabold text-gray-900 mb-8'>{getCategoryTitle()}</h1>
+          <h1 className='text-3xl font-extrabold text-gray-900 mb-8'>
+            {getCategoryTitle()}
+          </h1>
 
           <div className='flex gap-10'>
             {/* Left Sidebar - Filters */}
@@ -520,7 +607,9 @@ const CategoryPage: React.FC = () => {
             {/* Right Content - Restaurant Grid */}
             <div className='flex-1'>
               {showLoading ? (
-                <LoadingState withFilters={hasActiveFilters && isFilterLoading} />
+                <LoadingState
+                  withFilters={hasActiveFilters && isFilterLoading}
+                />
               ) : showError ? (
                 <ErrorState />
               ) : showEmpty ? (
@@ -529,7 +618,8 @@ const CategoryPage: React.FC = () => {
                 <>
                   <div className='grid grid-cols-2 gap-5'>
                     {filteredRestaurants.map((restaurant, index) => {
-                      const userLocation = latitude && longitude ? { latitude, longitude } : null;
+                      const userLocation =
+                        latitude && longitude ? { latitude, longitude } : null;
                       return (
                         <RestaurantCard
                           key={`${restaurant.id}-${index}`}
@@ -543,13 +633,17 @@ const CategoryPage: React.FC = () => {
                   {isLoadingMore && (
                     <div className='flex justify-center items-center py-8'>
                       <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-red-600'></div>
-                      <span className='ml-3 text-gray-600'>Loading more restaurants...</span>
+                      <span className='ml-3 text-gray-600'>
+                        Loading more restaurants...
+                      </span>
                     </div>
                   )}
 
                   {!hasMore && allRestaurants.length > 0 && (
                     <div className='text-center py-8'>
-                      <p className='text-gray-500 text-sm'>You've reached the end of the list</p>
+                      <p className='text-gray-500 text-sm'>
+                        You've reached the end of the list
+                      </p>
                     </div>
                   )}
                 </>
@@ -579,8 +673,18 @@ const CategoryPage: React.FC = () => {
               onClick={() => setIsMobileSidebarOpen(false)}
               className='absolute flex flex-row justify-center items-center bg-white rounded-full shadow-lg z-999999 left-[306px] top-4 p-2 w-8 h-8'
             >
-              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+              <svg
+                className='w-4 h-4'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M6 18L18 6M6 6l12 12'
+                />
               </svg>
             </button>
 

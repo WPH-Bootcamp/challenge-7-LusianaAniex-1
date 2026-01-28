@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useLayoutEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthModal from '@/shared/components/AuthModal';
 import Footer from '@/shared/components/Footer';
@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
   // Only fetch restaurants when we have location or after a timeout
   const [shouldFetch, setShouldFetch] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Start fetching after 100ms regardless of location status
     const timer = setTimeout(() => {
       setShouldFetch(true);
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   // Detect mobile screen size
-  useEffect(() => {
+  useLayoutEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -120,7 +120,7 @@ const HomePage: React.FC = () => {
   });
 
   // Update restaurants when new data arrives
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (restaurantsData) {
       if (currentPage === 1) {
         // First page - replace all restaurants
@@ -298,10 +298,7 @@ const HomePage: React.FC = () => {
   return (
     <div className='font-nunito'>
       {/* Hero Section with Search */}
-      <HeroSection
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+      <HeroSection searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {/* Categories Section */}
       <CategorySection
@@ -324,9 +321,7 @@ const HomePage: React.FC = () => {
         hasMore={hasMore}
         error={error}
         locationError={locationError ? new Error(locationError) : null}
-        userLocation={
-          latitude && longitude ? { latitude, longitude } : null
-        }
+        userLocation={latitude && longitude ? { latitude, longitude } : null}
         isMobile={isMobile}
         mobileDisplayCount={mobileDisplayCount}
         onAllRestaurantClick={handleAllRestaurantClick}

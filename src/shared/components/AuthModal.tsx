@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { X, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -35,7 +35,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const { login, register } = useAuth();
-  
+
   // ... (rest of the state and handlers remain unchanged, skipping to render for brevity in replacement if allowed, but here I must match context. Since I am replacing the top part to add import, I need to be careful with chunks.
   // Actually I should split this into chunks.)
 
@@ -49,7 +49,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   });
 
   // Update mode when initialMode changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     setMode(initialMode);
     setError('');
     setFieldErrors({});
@@ -152,25 +152,25 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: unknown) {
       // Log full error to console for debugging
       console.error('Authentication error:', err);
-      
+
       // Extract error message from response
       let errorMessage = 'An error occurred';
-      
+
       if (err && typeof err === 'object' && 'response' in err) {
         const response = (err as any).response;
         console.log('Error response:', response);
-        
+
         // Try to get the most detailed error message
-        errorMessage = 
-          response?.data?.message || 
-          response?.data?.error || 
+        errorMessage =
+          response?.data?.message ||
+          response?.data?.error ||
           response?.statusText ||
           `Server error (${response?.status})` ||
           'An error occurred';
       } else if (err instanceof Error) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -220,9 +220,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
             src={leftImageModal}
             alt='Food'
             fill
-            sizes="50vw"
+            sizes='50vw'
             className='object-cover'
-            placeholder="blur"
+            placeholder='blur'
             priority
           />
         </div>
@@ -237,11 +237,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           >
             {/* Logo */}
             <div className='flex items-center gap-3'>
-              <Image
-                src={redLogo}
-                alt='Foody Logo'
-                className='w-10 h-10'
-              />
+              <Image src={redLogo} alt='Foody Logo' className='w-10 h-10' />
               <span className='text-2xl font-extrabold text-gray-900'>
                 Foody
               </span>
@@ -253,7 +249,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 Welcome Back
               </h1>
               <p className='text-sm font-medium text-gray-900'>
-                Good to see you again! Let's eat
+                Good to see you again! {`Let's`} eat
               </p>
             </div>
 
@@ -283,9 +279,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                     : 'text-[#535862] font-medium'
                 }`}
               >
-                <span className='text-sm'>
-                  Sign in
-                </span>
+                <span className='text-sm'>Sign in</span>
               </button>
               <button
                 type='button'
@@ -311,17 +305,12 @@ const AuthModal: React.FC<AuthModalProps> = ({
                     : 'text-[#535862] font-medium'
                 }`}
               >
-                <span className='text-sm'>
-                  Sign up
-                </span>
+                <span className='text-sm'>Sign up</span>
               </button>
             </div>
 
             {/* Form */}
-            <form
-              onSubmit={handleSubmit}
-              className='flex flex-col gap-3'
-            >
+            <form onSubmit={handleSubmit} className='flex flex-col gap-3'>
               {/* Name Field - Only for Register */}
               {mode === 'register' && (
                 <div className='flex flex-col gap-1'>
@@ -517,7 +506,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 className='text-sm text-[#535862] hover:text-gray-900 transition-colors'
               >
                 {mode === 'login'
-                  ? "Don't have an account? Register"
+                  ? `Don't have an account? Register`
                   : 'Already have an account? Login'}
               </button>
             </div>

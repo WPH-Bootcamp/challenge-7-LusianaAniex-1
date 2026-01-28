@@ -15,14 +15,18 @@ export function cn(...inputs: ClassValue[]): string {
  * @param amount - The amount to format
  * @returns Formatted currency string
  */
-export function formatCurrency(amount: number): string {
+export const formatCurrency = (
+  amount: number | string,
+  currency: string = 'IDR'
+): string => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: 'IDR',
+    currency: currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
-}
+  }).format(numAmount);
+};
 
 /**
  * Format date using dayjs

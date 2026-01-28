@@ -95,6 +95,7 @@ export type Review = {
   comment: string;
   createdAt: string;
   updatedAt?: string;
+  transactionId?: string;
   userName?: string;
   user?: {
     id: number;

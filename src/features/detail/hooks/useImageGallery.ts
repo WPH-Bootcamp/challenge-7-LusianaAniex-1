@@ -3,7 +3,7 @@
  * Handles drag/swipe functionality for image gallery
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 
 // Gallery configuration
 const GALLERY_CONFIG = {
@@ -86,7 +86,7 @@ export function useImageGallery({
   };
 
   // Auto-advance images
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!autoAdvance || images.length <= 1) return;
 
     const interval = setInterval(() => {

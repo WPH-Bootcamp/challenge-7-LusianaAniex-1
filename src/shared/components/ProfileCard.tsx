@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { Save, X } from 'lucide-react';
@@ -46,9 +46,9 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
   // Fetch user profile data with address from localStorage
   const { data: userProfile, isLoading: isProfileLoading } =
     useUserProfileWithAddress();
-    
+
   // Reset image error when source changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     setImageError(false);
   }, [profileImagePreview, userProfile?.profilePicture]);
 
@@ -82,7 +82,7 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
   });
 
   // Initialize form data when profile loads (only once)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (userProfile && !formDataInitialized.current) {
       setFormData({
         name: userProfile.name || '',
@@ -174,7 +174,7 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
   };
 
   // Clean up preview URLs when component unmounts or image changes
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     return () => {
       if (profileImagePreview) {
         revokePreviewUrl(profileImagePreview);
@@ -198,7 +198,8 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
         <div className='flex flex-col items-start gap-2 w-[329px] md:w-[484px] h-[172px] md:h-[190px] flex-none'>
           {/* User Avatar - Ellipse 3 */}
           <div className='w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center flex-none relative overflow-hidden'>
-            {(profileImagePreview || userProfile?.profilePicture) && !imageError ? (
+            {(profileImagePreview || userProfile?.profilePicture) &&
+            !imageError ? (
               <Image
                 src={profileImagePreview || userProfile?.profilePicture || ''}
                 alt='Profile'
@@ -290,7 +291,10 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
                 placeholder='Enter your name'
               />
             ) : (
-              <span suppressHydrationWarning className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-gray-900 flex-1 text-right'>
+              <span
+                suppressHydrationWarning
+                className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-gray-900 flex-1 text-right'
+              >
                 {isProfileLoading
                   ? 'Loading...'
                   : userProfile?.name || 'Johndoe'}
@@ -314,7 +318,10 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
                 placeholder='Enter your email'
               />
             ) : (
-              <span suppressHydrationWarning className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-gray-900 flex-1 text-right'>
+              <span
+                suppressHydrationWarning
+                className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-gray-900 flex-1 text-right'
+              >
                 {isProfileLoading
                   ? 'Loading...'
                   : userProfile?.email || 'johndoe@email.com'}
@@ -338,7 +345,10 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
                 placeholder='Enter your phone number'
               />
             ) : (
-              <span suppressHydrationWarning className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-gray-900 flex-1 text-right'>
+              <span
+                suppressHydrationWarning
+                className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-gray-900 flex-1 text-right'
+              >
                 {isProfileLoading
                   ? 'Loading...'
                   : userProfile?.phone || '081234567890'}

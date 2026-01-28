@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import type { Review } from '@/shared/types';
@@ -24,7 +24,7 @@ const EditReviewModal: React.FC<EditReviewModalProps> = ({
   const [comment, setComment] = useState('');
 
   // Initialize form with review data when modal opens
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isOpen && review) {
       setRating(review.star || review.rating || 0);
       setComment(review.comment || '');

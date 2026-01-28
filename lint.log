@@ -28,7 +28,7 @@ Effects are intended to synchronize state between React and external systems suc
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\features\category\CategoryPage.tsx:192:5
-  190 |   useEffect(() => {
+  190 |   useLayoutEffect(() => {
   191 |     window.scrollTo(0, 0);
 > 192 |     setAllRestaurants([]);
       |     ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
@@ -44,7 +44,7 @@ Effects are intended to synchronize state between React and external systems suc
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\features\category\CategoryPage.tsx:219:7
-  217 |   useEffect(() => {
+  217 |   useLayoutEffect(() => {
   218 |     if (hasActiveFilters && filterResults && Array.isArray(filterResults)) {
 > 219 |       setAllRestaurants(filterResults);
       |       ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
@@ -59,7 +59,7 @@ C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\features\checkOut
   516:21  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\features\detail\RestaurantDetailPage.tsx
-   1:27  warning  'useEffect' is defined but never used     @typescript-eslint/no-unused-vars
+   1:27  warning  'useLayoutEffect' is defined but never used     @typescript-eslint/no-unused-vars
   31:36  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\features\home\HomePage.tsx
@@ -179,7 +179,7 @@ Effects are intended to synchronize state between React and external systems suc
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\shared\components\EditReviewModal.tsx:27:7
-  25 |   useEffect(() => {
+  25 |   useLayoutEffect(() => {
   26 |     if (isOpen && review) {
 > 27 |       setRating(review.star || review.rating || 0);
      |       ^^^^^^^^^ Avoid calling setState() directly within an effect
@@ -229,7 +229,7 @@ Calling setState synchronously within an effect body causes cascading renders th
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\shared\components\RestaurantCard.tsx:28:5
   26 |
-  27 |   useEffect(() => {
+  27 |   useLayoutEffect(() => {
 > 28 |     setImgSrc(
      |     ^^^^^^^^^ Avoid calling setState() directly within an effect
   29 |         restaurant.images?.[0] || restaurant.logo || restaurantPlaceholder
@@ -262,7 +262,7 @@ Effects are intended to synchronize state between React and external systems suc
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\shared\context\AuthContext.tsx:59:7
-  57 |   useEffect(() => {
+  57 |   useLayoutEffect(() => {
   58 |     if (profileData) {
 > 59 |       setUser(profileData.data);
      |       ^^^^^^^ Avoid calling setState() directly within an effect
@@ -280,7 +280,7 @@ Effects are intended to synchronize state between React and external systems suc
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
 C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\src\shared\hooks\useMenuImages.ts:46:7
-  44 |   useEffect(() => {
+  44 |   useLayoutEffect(() => {
   45 |     if (ordersData?.data?.orders) {
 > 46 |       setIsLoading(true);
      |       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect

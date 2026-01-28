@@ -67,7 +67,7 @@ const Footer: React.FC<FooterProps> = () => {
             </div>
 
             <p className='text-sm md:text-md-regular text-[#FDFDFD] leading-7 md:leading-relaxed font-nunito font-normal tracking-[-0.02em] max-w-[361px]'>
-              Enjoy homemade flavors & chef's signature dishes, freshly prepared
+              Enjoy homemade flavors & {`chef's`} signature dishes, freshly prepared
               every day. Order online or visit our nearest branch.
             </p>
 

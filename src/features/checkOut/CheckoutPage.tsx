@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Minus, Plus } from 'lucide-react';
@@ -23,16 +23,25 @@ import bniLogo from '@/assets/images/bni.svg';
 import briLogo from '@/assets/images/bri.svg';
 import bcaLogo from '@/assets/images/bca.svg';
 import mandiriLogo from '@/assets/images/mandiri.svg';
-import locationLogo from '@/assets/images/location-logo.png'; 
+import locationLogo from '@/assets/images/location-logo.png';
 
 // Configuration
+interface PaymentResponse {
+  order_id: string;
+  transaction_id?: string;
+  transaction_status?: string;
+}
+
+interface MidtransSnapResponse {
+  snapToken: string;
+}
+
 const PAYMENT_METHODS = [
   { id: 'bni', name: 'Bank Negara Indonesia', logo: bniLogo },
   { id: 'bri', name: 'Bank Rakyat Indonesia', logo: briLogo },
   { id: 'bca', name: 'Bank Central Asia', logo: bcaLogo },
   { id: 'mandiri', name: 'Mandiri', logo: mandiriLogo },
 ] as const;
-
 
 const DELIVERY_FEE = 10000;
 const SERVICE_FEE = 1000;
@@ -46,10 +55,7 @@ const formatPrice = (price: number): string => {
   }).format(price);
 };
 
-const getPaymentMethodName = (code: string): string => {
-  const method = PAYMENT_METHODS.find(m => m.id === code);
-  return method?.name || 'Bank Nasional Indonesia';
-};
+
 
 // Sub-components
 interface AddressCardProps {
@@ -59,7 +65,12 @@ interface AddressCardProps {
   onEdit: () => void;
 }
 
-const AddressCard = ({ address, phone, isLoading, onEdit }: AddressCardProps) => (
+const AddressCard = ({
+  address,
+  phone,
+  isLoading,
+  onEdit,
+}: AddressCardProps) => (
   <div className='bg-white rounded-2xl shadow-[0px_0px_20px_rgba(203,202,202,0.25)] p-4 w-full'>
     <div className='flex flex-col gap-3 w-full'>
       <div className='flex flex-col items-start gap-1 w-full'>
@@ -67,9 +78,9 @@ const AddressCard = ({ address, phone, isLoading, onEdit }: AddressCardProps) =>
           <div className='w-6 h-6 shrink-0 relative'>
             <Image
               src={locationLogo}
-              alt="Location"
+              alt='Location'
               fill
-              sizes="24px"
+              sizes='24px'
               className='object-contain'
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -111,7 +122,8 @@ const AddressCard = ({ address, phone, isLoading, onEdit }: AddressCardProps) =>
                 No delivery address provided
               </p>
               <p className='font-nunito text-xs text-gray-400'>
-                Please add your address in your profile to continue with checkout
+                Please add your address in your profile to continue with
+                checkout
               </p>
               <button
                 onClick={onEdit}
@@ -142,7 +154,11 @@ interface CartItemCardProps {
   onNavigateToRestaurant: (restaurantId: string) => void;
 }
 
-const CartItemCard = ({ item, onQuantityChange, onNavigateToRestaurant }: CartItemCardProps) => (
+const CartItemCard = ({
+  item,
+  onQuantityChange,
+  onNavigateToRestaurant,
+}: CartItemCardProps) => (
   <div className='flex flex-row items-center w-full h-[84px] gap-4'>
     <div className='w-16 h-16 rounded-xl shrink-0 relative'>
       {item.imageUrl ? (
@@ -150,7 +166,7 @@ const CartItemCard = ({ item, onQuantityChange, onNavigateToRestaurant }: CartIt
           src={item.imageUrl}
           alt={item.name}
           fill
-          sizes="64px"
+          sizes='64px'
           className='object-cover rounded-xl'
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -216,7 +232,11 @@ interface RestaurantGroupProps {
   onNavigateToRestaurant: (restaurantId: string) => void;
 }
 
-const RestaurantGroup = ({ group, onQuantityChange, onNavigateToRestaurant }: RestaurantGroupProps) => (
+const RestaurantGroup = ({
+  group,
+  onQuantityChange,
+  onNavigateToRestaurant,
+}: RestaurantGroupProps) => (
   <div className='flex flex-col gap-3 w-full'>
     <div className='flex flex-row justify-between items-center w-full h-10'>
       <div className='flex flex-row items-center gap-2'>
@@ -225,7 +245,7 @@ const RestaurantGroup = ({ group, onQuantityChange, onNavigateToRestaurant }: Re
             src={restaurantIcon}
             alt={group.restaurantName}
             fill
-            sizes="32px"
+            sizes='32px'
             className='object-cover rounded'
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -270,12 +290,16 @@ const RestaurantGroup = ({ group, onQuantityChange, onNavigateToRestaurant }: Re
 );
 
 interface PaymentMethodCardProps {
-  method: typeof PAYMENT_METHODS[number];
+  method: (typeof PAYMENT_METHODS)[number];
   isSelected: boolean;
   onSelect: (id: string) => void;
 }
 
-const PaymentMethodCard = ({ method, isSelected, onSelect }: PaymentMethodCardProps) => (
+const PaymentMethodCard = ({
+  method,
+  isSelected,
+  onSelect,
+}: PaymentMethodCardProps) => (
   <div
     className='flex items-center gap-3 cursor-pointer w-full h-10 p-2 rounded-lg hover:bg-gray-50 transition-colors'
     onClick={() => onSelect(method.id)}
@@ -323,7 +347,14 @@ interface PaymentSummaryProps {
   onCheckout: () => void;
 }
 
-const PaymentSummary = ({ subtotal, deliveryFee, serviceFee, total, itemCount, onCheckout }: PaymentSummaryProps) => (
+const PaymentSummary = ({
+  subtotal,
+  deliveryFee,
+  serviceFee,
+  total,
+  itemCount,
+  onCheckout,
+}: PaymentSummaryProps) => (
   <div className='flex flex-col items-start px-4 gap-3 w-full'>
     <h3 className='font-nunito font-extrabold text-base leading-[30px] text-gray-900 w-full'>
       Payment Summary
@@ -388,8 +419,15 @@ const CheckoutPage: React.FC = () => {
   // State
   const [selectedPayment, setSelectedPayment] = useState<string>('bni');
   const [isMounted, setIsMounted] = useState(false);
+  const [snapResponse, setSnapResponse] = useState<MidtransSnapResponse | null>(null);
+  const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | null>(null);
 
-  useEffect(() => {
+  const handlePaymentSuccess = (response: PaymentResponse) => {
+    setPaymentResponse(response);
+    router.push('/success');
+  };
+
+  useLayoutEffect(() => {
     setIsMounted(true);
   }, []);
 
@@ -399,40 +437,50 @@ const CheckoutPage: React.FC = () => {
     queryFn: () => authApi.getProfile(),
     select: (response) => ({
       ...response.data,
-      address: typeof window !== 'undefined' ? localStorage.getItem('userAddress') || '' : '',
+      address:
+        typeof window !== 'undefined'
+          ? localStorage.getItem('userAddress') || ''
+          : '',
     }),
   });
 
   // Memoized calculations
   const groupedItems = useMemo(() => {
-    return cartItems.reduce((acc, item) => {
-      const restaurantId = item.restaurantId;
-      if (!acc[restaurantId]) {
-        acc[restaurantId] = {
-          restaurantId,
-          restaurantName: item.restaurantName || 'Restaurant',
-          items: [],
-          total: 0,
-        };
-      }
-      acc[restaurantId].items.push(item);
-      acc[restaurantId].total += item.price * item.quantity;
-      return acc;
-    }, {} as Record<string, {
-      restaurantId: string;
-      restaurantName: string;
-      items: CartItem[];
-      total: number;
-    }>);
+    return cartItems.reduce(
+      (acc, item) => {
+        const restaurantId = item.restaurantId;
+        if (!acc[restaurantId]) {
+          acc[restaurantId] = {
+            restaurantId,
+            restaurantName: item.restaurantName || 'Restaurant',
+            items: [],
+            total: 0,
+          };
+        }
+        acc[restaurantId].items.push(item);
+        acc[restaurantId].total += item.price * item.quantity;
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          restaurantId: string;
+          restaurantName: string;
+          items: CartItem[];
+          total: number;
+        }
+      >
+    );
   }, [cartItems]);
 
-  const subtotal = useMemo(() => 
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
     [cartItems]
   );
 
-  const total = useMemo(() => 
-    subtotal + DELIVERY_FEE + SERVICE_FEE,
+  const total = useMemo(
+    () => subtotal + DELIVERY_FEE + SERVICE_FEE,
     [subtotal]
   );
 
@@ -460,7 +508,8 @@ const CheckoutPage: React.FC = () => {
   const handleCheckout = async () => {
     try {
       // Check if user is authenticated
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token =
+        typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (!token) {
         alert('Please log in to place an order');
         return;
@@ -488,28 +537,31 @@ const CheckoutPage: React.FC = () => {
       }
 
       // Group cart items by restaurant
-      const restaurantItems = cartItems.reduce((acc, item) => {
-        const restaurantId = parseInt(item.restaurantId);
-        if (!acc[restaurantId]) {
-          acc[restaurantId] = {
-            restaurantId: restaurantId,
-            items: []
-          };
-        }
-        acc[restaurantId].items.push({
-          menuId: parseInt(item.id),
-          quantity: item.quantity,
-          notes: ''
-        });
-        return acc;
-      }, {} as Record<number, { restaurantId: number; items: any[] }>);
+      const restaurantItems = cartItems.reduce(
+        (acc, item) => {
+          const restaurantId = parseInt(item.restaurantId);
+          if (!acc[restaurantId]) {
+            acc[restaurantId] = {
+              restaurantId: restaurantId,
+              items: [],
+            };
+          }
+          acc[restaurantId].items.push({
+            menuId: parseInt(item.id),
+            quantity: item.quantity,
+            notes: '',
+          });
+          return acc;
+        },
+        {} as Record<number, { restaurantId: number; items: { menuId: number; quantity: number; notes: string }[] }>
+      );
 
       // Create order via API
       const apiOrderData = {
         paymentMethod: selectedPayment, // Send ID (e.g., 'bni'), not name
         deliveryAddress: deliveryAddress,
         notes: '',
-        restaurants: Object.values(restaurantItems)
+        restaurants: Object.values(restaurantItems),
       };
 
       const response = await ordersApi.createOrder(apiOrderData);
@@ -546,18 +598,18 @@ const CheckoutPage: React.FC = () => {
 
       // Navigate to success page
       router.push('/success');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // COMPLETE DEBUG LOGGING
       console.error('Error creating order (COMPLETE DEBUG):', {
         rawError: error,
         errorType: typeof error,
-        errorKeys: Object.keys(error || {}),
+        errorKeys: Object.keys((error as object) || {}),
         errorString: String(error),
         errorJSON: JSON.stringify(error, null, 2),
-        isAxiosError: error?.isAxiosError,
-        message: error?.message,
-        status: error?.status,
-        response: error?.response
+        isAxiosError: (error as any)?.isAxiosError,
+        message: (error as Error)?.message,
+        status: (error as any)?.status,
+        response: (error as any)?.response,
       });
 
       // Network / Offline Check
@@ -567,36 +619,53 @@ const CheckoutPage: React.FC = () => {
       }
 
       // Network / CORS Error (Status 0 or "Network Error")
-      if (error?.status === 0 || error?.message === 'Network Error' || (error?.message && error?.message.includes('Failed to fetch'))) {
-        alert('Unable to connect to server. This might be a connection issue or the server is unreachable.');
+      if (
+        (error as any)?.status === 0 ||
+        (error as Error)?.message === 'Network Error' ||
+        ((error as Error)?.message && (error as Error)?.message.includes('Failed to fetch'))
+      ) {
+        alert(
+          'Unable to connect to server. This might be a connection issue or the server is unreachable.'
+        );
         return;
       }
-      
+
       // Authentication Error
-      if (error?.status === 401) {
+      if ((error as any)?.status === 401) {
         alert('Session expired. Please log in again.');
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/login'; 
+          window.location.href = '/login';
         }
         return;
       }
 
       // Bad Request
-      if (error?.status === 400) {
-        const serverMessage = error?.response?.data?.message || error?.message || 'Invalid order information.';
-        const validationErrors = error?.response?.data?.errors;
-        
+      if ((error as any)?.status === 400) {
+        const serverMessage =
+          (error as any)?.response?.data?.message ||
+          (error as Error)?.message ||
+          'Invalid order information.';
+        const validationErrors = (error as any)?.response?.data?.errors;
+
         console.error('Validation errors:', validationErrors);
 
         if (Array.isArray(validationErrors)) {
-          const errorList = validationErrors.map((err: any) => {
-            const constraints = err.constraints ? Object.values(err.constraints).join(', ') : 'Invalid value';
-            return `${err.property}: ${constraints}`;
-          }).join('\n');
+          const errorList = validationErrors
+            .map((err: { property: string; constraints: Record<string, string> }) => {
+              const constraints = err.constraints
+                ? Object.values(err.constraints).join(', ')
+                : 'Invalid value';
+              return `${err.property}: ${constraints}`;
+            })
+            .join('\n');
           alert(`Please check:\n${errorList}`);
-        } else if (validationErrors && typeof validationErrors === 'object' && Object.keys(validationErrors).length > 0) {
+        } else if (
+          validationErrors &&
+          typeof validationErrors === 'object' &&
+          Object.keys(validationErrors).length > 0
+        ) {
           const errorList = Object.entries(validationErrors)
             .map(([field, message]) => `${field}: ${message}`)
             .join('\n');
@@ -608,7 +677,7 @@ const CheckoutPage: React.FC = () => {
       }
 
       // Generic Error
-      const msg = error?.message || 'An unexpected error occurred.';
+      const msg = (error as Error)?.message || 'An unexpected error occurred.';
       alert(`Checkout failed: ${msg}. Please try again.`);
     }
   };
@@ -680,8 +749,14 @@ const CheckoutPage: React.FC = () => {
           <div className='w-full md:w-96'>
             <div className='relative bg-white rounded-2xl shadow-[0px_0px_20px_rgba(203,202,202,0.25)] w-full'>
               {/* Decorative Ellipses */}
-              <div className='absolute w-5 h-5 bg-gray-100 rounded-full -left-2.5' style={{ top: '51%', zIndex: 3 }}></div>
-              <div className='absolute w-5 h-5 bg-gray-100 rounded-full -right-2.5' style={{ top: '51%', zIndex: 3 }}></div>
+              <div
+                className='absolute w-5 h-5 bg-gray-100 rounded-full -left-2.5'
+                style={{ top: '51%', zIndex: 3 }}
+              ></div>
+              <div
+                className='absolute w-5 h-5 bg-gray-100 rounded-full -right-2.5'
+                style={{ top: '51%', zIndex: 3 }}
+              ></div>
 
               <div className='flex flex-col items-end py-4 gap-4 w-full'>
                 {/* Payment Method Section */}

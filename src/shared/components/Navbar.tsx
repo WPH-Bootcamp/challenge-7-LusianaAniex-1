@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useSelector } from 'react-redux';
@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
   );
 
   // Handle scroll effect
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       setIsScrolled(scrollTop > 50);
@@ -44,7 +44,7 @@ const Navbar: React.FC = () => {
   }, []);
 
   // Handle mobile detection
-  useEffect(() => {
+  useLayoutEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -104,14 +104,14 @@ const Navbar: React.FC = () => {
           onClick={handleLogoClick}
         >
           {/* Logo */}
-          <div className="relative w-10 h-10 md:w-[clamp(32px,4vw,42px)] md:h-[clamp(32px,4vw,42px)] flex-none order-0 grow-0">
+          <div className='relative w-10 h-10 md:w-[clamp(32px,4vw,42px)] md:h-[clamp(32px,4vw,42px)] flex-none order-0 grow-0'>
             <Image
               src={pathname === '/' && !isScrolled ? whiteLogo : redLogo}
               alt='Foody Logo'
               fill
-              className="object-contain"
+              className='object-contain'
               priority
-              sizes="(max-width: 768px) 40px, 42px"
+              sizes='(max-width: 768px) 40px, 42px'
             />
           </div>
           {/* Foody Text - Hidden on mobile, visible on desktop */}
@@ -203,8 +203,8 @@ const Navbar: React.FC = () => {
                       }
                       alt='Profile'
                       fill
-                      sizes="(max-width: 768px) 40px, 48px"
-                      className="object-cover"
+                      sizes='(max-width: 768px) 40px, 48px'
+                      className='object-cover'
                       loader={({ src }) => src} // Useful if using data URIs or external URLs without configuration
                       unoptimized={true} // For simplicity with varying external/local user uploads, or remove if configuring domains
                     />

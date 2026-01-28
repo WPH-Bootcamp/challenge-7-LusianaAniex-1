@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { MapPin, FileText, LogOut } from 'lucide-react';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useUserProfileWithAddress } from '@/shared/hooks/useUserProfileWithAddress';
@@ -28,7 +29,7 @@ const SidebarProfile = ({
   activeCard,
   isLogoutClicked,
   onCardChange,
-  onLogout
+  onLogout,
 }: SidebarProfileProps) => {
   const handleShowProfile = () => onCardChange('profile');
   const handleEditAddress = () => onCardChange('address');
@@ -43,9 +44,11 @@ const SidebarProfile = ({
       >
         <div className='w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden shrink-0'>
           {user?.profilePicture ? (
-            <img
+            <Image
               src={user.profilePicture}
               alt='Profile'
+              width={100}
+              height={100}
               className='w-full h-full object-cover rounded-full'
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -143,7 +146,10 @@ interface MobileNavigationProps {
   onCardChange: (card: ActiveCardType) => void;
 }
 
-const MobileNavigation = ({ activeCard, onCardChange }: MobileNavigationProps) => {
+const MobileNavigation = ({
+  activeCard,
+  onCardChange,
+}: MobileNavigationProps) => {
   const tabs = [
     { id: 'profile' as ActiveCardType, label: 'Profile', icon: '👤' },
     { id: 'address' as ActiveCardType, label: 'Address', icon: '📍' },
@@ -162,9 +168,11 @@ const MobileNavigation = ({ activeCard, onCardChange }: MobileNavigationProps) =
             }`}
           >
             <span className='text-lg'>{tab.icon}</span>
-            <span className={`font-nunito text-sm font-medium ${
-              activeCard === tab.id ? 'text-[#C12116]' : 'text-gray-900'
-            }`}>
+            <span
+              className={`font-nunito text-sm font-medium ${
+                activeCard === tab.id ? 'text-[#C12116]' : 'text-gray-900'
+              }`}
+            >
               {tab.label}
             </span>
           </button>
@@ -227,7 +235,7 @@ const ProfilePage: React.FC = () => {
   const displayUser = authUser || userProfile;
 
   // Handle URL parameter
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!searchParams) return;
     const tab = searchParams.get('tab');
     if (tab === 'address') {
@@ -266,9 +274,9 @@ const ProfilePage: React.FC = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='mx-auto py-8 px-4 md:px-10 pt-24 md:pt-28 max-w-7xl'>
-        <MobileNavigation 
-          activeCard={activeCard} 
-          onCardChange={handleCardChange} 
+        <MobileNavigation
+          activeCard={activeCard}
+          onCardChange={handleCardChange}
         />
 
         <div className='flex flex-col md:flex-row gap-6 md:gap-8'>

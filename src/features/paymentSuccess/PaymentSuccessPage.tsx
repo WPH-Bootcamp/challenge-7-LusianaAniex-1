@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
@@ -63,7 +63,7 @@ const Header = ({ onLogoClick }: HeaderProps) => (
         src={redLogo}
         alt='Foody Logo'
         fill
-        sizes="(max-width: 768px) 32px, 40px"
+        sizes='(max-width: 768px) 32px, 40px'
         className='object-contain'
         onError={(e) => {
           const target = e.target as HTMLImageElement;
@@ -79,9 +79,7 @@ const Header = ({ onLogoClick }: HeaderProps) => (
         }}
       />
     </div>
-    <h1 className='text-xl md:text-2xl font-extrabold text-gray-900'>
-      Foody
-    </h1>
+    <h1 className='text-xl md:text-2xl font-extrabold text-gray-900'>Foody</h1>
   </div>
 );
 
@@ -91,7 +89,9 @@ interface DecorativeEllipsesProps {
 }
 
 const DecorativeEllipses = ({ top, mobileTop }: DecorativeEllipsesProps) => (
-  <div className={`absolute flex justify-between items-center w-[338px] md:w-[446px] h-4 md:h-5 -left-2 md:-left-[9px] z-10 ${mobileTop || top}`}>
+  <div
+    className={`absolute flex justify-between items-center w-[338px] md:w-[446px] h-4 md:h-5 -left-2 md:-left-[9px] z-10 ${mobileTop || top}`}
+  >
     <div className='w-4 h-4 md:w-5 md:h-5 bg-[#F5F5F5] rounded-full'></div>
     <div className='w-4 h-4 md:w-5 md:h-5 bg-[#F5F5F5] rounded-full'></div>
   </div>
@@ -103,7 +103,9 @@ interface DashedLineProps {
 }
 
 const DashedLine = ({ top, mobileTop }: DashedLineProps) => (
-  <div className={`absolute w-[290px] md:w-[388px] h-px border-t border-dashed border-[#D5D7DA] z-10 left-4 md:left-5 ${mobileTop || top}`}></div>
+  <div
+    className={`absolute w-[290px] md:w-[388px] h-px border-t border-dashed border-[#D5D7DA] z-10 left-4 md:left-5 ${mobileTop || top}`}
+  ></div>
 );
 
 interface SuccessIconProps {
@@ -185,7 +187,7 @@ const PaymentSuccessPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get order data from localStorage
-  useEffect(() => {
+  useLayoutEffect(() => {
     const fetchOrderData = async () => {
       try {
         // Try to get from localStorage (fallback for page refresh)
@@ -212,7 +214,8 @@ const PaymentSuccessPage: React.FC = () => {
   }, [searchParams]);
 
   // Calculate item count
-  const itemCount = orderData?.items.reduce((total, item) => total + item.quantity, 0) || 0;
+  const itemCount =
+    orderData?.items.reduce((total, item) => total + item.quantity, 0) || 0;
 
   // Event handlers
   const handleSeeOrders = () => {
@@ -231,7 +234,7 @@ const PaymentSuccessPage: React.FC = () => {
   };
 
   // Cleanup on unmount
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Only clear if navigating away from success page
     const handleBeforeUnload = () => {
       localStorage.removeItem('lastOrderData');
@@ -239,7 +242,7 @@ const PaymentSuccessPage: React.FC = () => {
 
     // Listen for page navigation
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     // Return cleanup function directly
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -262,8 +265,14 @@ const PaymentSuccessPage: React.FC = () => {
           style={{ isolation: 'isolate' }}
         >
           {/* Decorative Ellipses */}
-          <DecorativeEllipses top='top-[110px] md:top-[158px]' mobileTop='top-[158px]' />
-          <DecorativeEllipses top='top-[290px] md:top-[404px]' mobileTop='top-[404px]' />
+          <DecorativeEllipses
+            top='top-[110px] md:top-[158px]'
+            mobileTop='top-[158px]'
+          />
+          <DecorativeEllipses
+            top='top-[290px] md:top-[404px]'
+            mobileTop='top-[404px]'
+          />
 
           {/* Success Icon and Message */}
           <SuccessIcon
@@ -272,8 +281,14 @@ const PaymentSuccessPage: React.FC = () => {
           />
 
           {/* Dashed Lines */}
-          <DashedLine top='top-[118px] md:top-[168px]' mobileTop='top-[168px]' />
-          <DashedLine top='top-[296px] md:top-[412px]' mobileTop='top-[412px]' />
+          <DashedLine
+            top='top-[118px] md:top-[168px]'
+            mobileTop='top-[168px]'
+          />
+          <DashedLine
+            top='top-[296px] md:top-[412px]'
+            mobileTop='top-[412px]'
+          />
 
           {/* Payment Details */}
           <div className='absolute flex flex-col w-[290px] md:w-[388px] gap-2 md:gap-4 left-4 md:left-5 top-[207px] md:top-[288px] -translate-y-1/2 z-10'>
@@ -291,11 +306,15 @@ const PaymentSuccessPage: React.FC = () => {
             />
             <PaymentDetailRow
               label='Delivery Fee'
-              value={orderData ? formatCurrency(orderData.deliveryFee) : 'Rp10.000'}
+              value={
+                orderData ? formatCurrency(orderData.deliveryFee) : 'Rp10.000'
+              }
             />
             <PaymentDetailRow
               label='Service Fee'
-              value={orderData ? formatCurrency(orderData.serviceFee) : 'Rp1.000'}
+              value={
+                orderData ? formatCurrency(orderData.serviceFee) : 'Rp1.000'
+              }
             />
           </div>
 

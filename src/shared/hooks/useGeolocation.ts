@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 
 interface GeolocationState {
   latitude: number | null;
@@ -15,7 +15,7 @@ export function useGeolocation() {
     isLoading: true,
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!navigator.geolocation) {
       setState((prev) => ({
         ...prev,

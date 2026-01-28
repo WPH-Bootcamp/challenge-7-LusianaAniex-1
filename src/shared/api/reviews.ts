@@ -19,6 +19,7 @@ export interface ReviewResponse {
   comment: string;
   createdAt: string;
   updatedAt?: string;
+  transactionId?: string;
   user: {
     id: number;
     name: string;

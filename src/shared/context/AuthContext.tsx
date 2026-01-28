@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useLayoutEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   useLoginMutation,
@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   } = useProfileQuery();
 
   // Check for existing token on mount
-  useEffect(() => {
+  useLayoutEffect(() => {
     const token =
       localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [refetchProfile]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (profileData) {
       setUser(profileData.data);
       setIsAuthenticated(true);
@@ -104,13 +104,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (userData: RegisterRequest) => {
     const response = await registerMutation.mutateAsync(userData);
-    
+
     // Token is already stored in the mutation
     if (response.data && response.data.token) {
       // Registration always uses localStorage (remembered by default)
       localStorage.setItem('token', response.data.token);
     }
-    
+
     if (response.data && response.data.user) {
       setUser(response.data.user);
       setIsAuthenticated(true);

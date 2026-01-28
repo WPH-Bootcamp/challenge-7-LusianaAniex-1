@@ -1,10 +1,10 @@
 'use client';
 
 import { redirect } from 'next/navigation';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 export default function CategoryRedirectPage() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     redirect('/category/all');
   }, []);
 

@@ -14,6 +14,7 @@ import ReviewModal from './ReviewModal';
 import restaurantIcon from '../../assets/images/restaurant-icon.png';
 import type { RootState } from '@/shared/store/store';
 import type { Order } from '@/features/orders/ordersSlice';
+import type { Review } from '@/shared/types';
 import Image from 'next/image';
 
 const OrderImage = ({ src, alt }: { src: string; alt: string }) => {
@@ -83,19 +84,20 @@ const OrdersCard = () => {
   // Review mutation
   const createReviewMutation = useCreateReviewMutation();
 
-  // Fetch user's reviews to check which restaurants have been reviewed (only when authenticated)
+  // Fetch user's reviews to check which orders have been reviewed
   const { data: myReviewsData } = useMyReviewsQuery(
     { page: 1, limit: 100 },
     { enabled: isAuthenticated }
   );
 
-  // Helper function to check if restaurant has already been reviewed
-  const hasReviewedRestaurant = (restaurantId: number) => {
-    if (!myReviewsData?.reviews) return false;
+  // Helper function to check if order has already been reviewed
+  const hasReviewedOrder = (transactionId: string) => {
+    if (!transactionId || !myReviewsData?.reviews) return false;
     return myReviewsData.reviews.some(
-      (review) => Number(review.restaurant?.id) === Number(restaurantId)
+      (review: Review) => review.transactionId === transactionId
     );
   };
+
 
   // Touch sliding handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -188,46 +190,43 @@ const OrdersCard = () => {
       await createReviewMutation.mutateAsync(reviewData);
       handleCloseReviewModal();
     } catch (error) {
-      // Enhanced error handling
-      const apiError = error as {
-        status?: number;
-        message?: string;
-        errors?: Record<string, string[]>;
-      };
+      console.error('Review submission error full object:', error);
 
-      console.error('Review submission error:', {
-        error,
-        apiError,
-        selectedOrder,
-      });
+      // Safe error parsing
+      let errorMessage = 'Unknown error occurred';
+      let status: number | undefined;
+
+      if ((error as any)?.response?.data?.message) {
+        errorMessage = (error as any).response.data.message;
+        status = (error as any).response.status;
+      } else if ((error as Error)?.message) {
+        errorMessage = (error as Error).message;
+      }
+
+      console.error('Parsed Review Error:', { errorMessage, status });
 
       if (
-        apiError.status === 409 ||
-        apiError.message?.includes('already reviewed')
+        status === 409 ||
+        errorMessage.toLowerCase().includes('already reviewed')
       ) {
-        alert('You have already reviewed this restaurant!');
+        alert('You have already reviewed this restaurant for this order!');
       } else if (
-        apiError.status === 400 &&
-        (apiError.message?.includes(
-          'only review restaurants you have ordered from'
-        ) ||
-          apiError.message?.includes('Transaction not found'))
+        status === 400 &&
+        (errorMessage.toLowerCase().includes('only review restaurants') ||
+          errorMessage.toLowerCase().includes('transaction not found'))
       ) {
         alert('You can only review restaurants you have ordered from!');
-      } else if (apiError.status === 401) {
+      } else if (status === 401) {
         alert('Please log in to submit a review');
       } else if (
-        apiError.status === 404 ||
-        apiError.message?.includes('Transaction not found') ||
-        apiError.message?.includes('does not belong to you')
+        status === 404 ||
+        errorMessage.toLowerCase().includes('transaction not found') ||
+        errorMessage.toLowerCase().includes('does not belong to you')
       ) {
         alert(
           'This order was not found or does not belong to you. Please try refreshing the page.'
         );
       } else {
-        const errorMessage =
-          apiError.message ||
-          'Unknown error occurred';
         alert(`Failed to submit review: ${errorMessage}`);
       }
     }
@@ -237,11 +236,18 @@ const OrdersCard = () => {
   const mappedOrders =
     ordersData?.data.orders.map((apiOrder) => {
       const firstRestaurant = apiOrder.restaurants[0];
+      
+      interface ApiRestaurant {
+        restaurantId?: number;
+        id?: number;
+        restaurant?: { id: number };
+      }
+
       // Check for restaurantId (API spec), id (flat), or restaurant.id (nested structure)
       const rawId = 
         firstRestaurant?.restaurantId || 
-        (firstRestaurant as any)?.id || 
-        (firstRestaurant as any)?.restaurant?.id;
+        (firstRestaurant as ApiRestaurant)?.id || 
+        (firstRestaurant as ApiRestaurant)?.restaurant?.id;
       
       const restaurantId = Number(rawId) || 0;
 
@@ -536,7 +542,7 @@ const OrdersCard = () => {
                   <div className='flex flex-row items-center p-0 gap-4 flex-1 min-h-[80px] w-full md:w-auto'>
                     {/* Item Image */}
                     <div className='w-16 h-16 md:w-20 md:h-20 bg-[#F3F4F6] rounded-xl flex items-center justify-center overflow-hidden flex-none'>
-                      <div className='w-full h-full bg-gradient-to-br from-[#F3F4F6] to-[#E5E7EB] rounded-xl flex items-center justify-center text-lg md:text-2xl font-bold text-[#6B7280] relative overflow-hidden'>
+                      <div className='w-full h-full bg-linear-to-br from-[#F3F4F6] to-[#E5E7EB] rounded-xl flex items-center justify-center text-lg md:text-2xl font-bold text-[#6B7280] relative overflow-hidden'>
                         {/* Placeholder text - always rendered as fallback */}
                         <span className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10'>
                           {order.items[0]?.name?.charAt(0).toUpperCase() || '?'}
@@ -595,11 +601,11 @@ const OrdersCard = () => {
                         Review Unavailable
                       </span>
                     </button>
-                  ) : hasReviewedRestaurant(order.restaurantId || 0) ? (
+                  ) : hasReviewedOrder(order.transactionId || '') ? (
                     <button
                       disabled
                       className='flex flex-row justify-center items-center p-2 gap-2 w-full md:w-[240px] h-12 bg-[#A4A7AE] rounded-full border-none cursor-not-allowed'
-                      title='You have already reviewed this restaurant'
+                      title='You have already reviewed this order'
                     >
                       <span className='text-base font-bold text-[#FDFDFD] font-nunito leading-7 tracking-[-0.02em]'>
                         Already Reviewed

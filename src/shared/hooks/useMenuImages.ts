@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import { restaurantsApi } from '@/shared/api/restaurants';
 
 interface MenuImage {
@@ -41,7 +41,7 @@ export const useMenuImages = (ordersData: OrderData | undefined) => {
   };
 
   // Fetch menu images when orders data changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ordersData?.data?.orders) {
       setIsLoading(true);
       const restaurantMenuMap = new Map<string, string[]>();
@@ -52,16 +52,20 @@ export const useMenuImages = (ordersData: OrderData | undefined) => {
         order.restaurants.forEach((restaurant) => {
           // Explicit null checks and type safety
           if (!restaurant) return;
-          
+
           const restaurantIdProp = restaurant.restaurantId;
           // Handle valid 0 ID but reject null/undefined
-          if (restaurantIdProp === null || restaurantIdProp === undefined) return;
-          
+          if (restaurantIdProp === null || restaurantIdProp === undefined)
+            return;
+
           const restaurantId = String(restaurantIdProp);
 
           const menuIds =
             restaurant.items
-              ?.filter((item) => item && (item.menuId !== null && item.menuId !== undefined))
+              ?.filter(
+                (item) =>
+                  item && item.menuId !== null && item.menuId !== undefined
+              )
               ?.map((item) => String(item.menuId)) || [];
 
           if (restaurantId && menuIds.length > 0) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Star } from 'lucide-react';
@@ -24,11 +24,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     restaurant.images?.[0] || restaurant.logo || restaurantPlaceholder
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const newSrc =
       restaurant.images?.[0] || restaurant.logo || restaurantPlaceholder;
     if (imgSrc !== newSrc) {
-       setImgSrc(newSrc);
+      setImgSrc(newSrc);
     }
   }, [restaurant, imgSrc]);
 
@@ -51,11 +51,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   };
 
   const handleError = () => {
-      if (imgSrc === restaurant.images?.[0] && restaurant.logo) {
-          setImgSrc(restaurant.logo);
-      } else {
-          setImgSrc(restaurantPlaceholder);
-      }
+    if (imgSrc === restaurant.images?.[0] && restaurant.logo) {
+      setImgSrc(restaurant.logo);
+    } else {
+      setImgSrc(restaurantPlaceholder);
+    }
   };
 
   return (
@@ -71,7 +71,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           fill
           className='object-cover'
           onError={handleError}
-          sizes="(max-width: 768px) 90px, 120px"
+          sizes='(max-width: 768px) 90px, 120px'
           unoptimized
         />
       </div>
