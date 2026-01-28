@@ -5,7 +5,7 @@ import type {
   AuthResponse,
   ApiResponse,
   User,
-} from '@/types';
+} from '@/shared/types';
 
 export const authApi = {
   login: async (data: LoginRequest): Promise<ApiResponse<AuthResponse>> => {

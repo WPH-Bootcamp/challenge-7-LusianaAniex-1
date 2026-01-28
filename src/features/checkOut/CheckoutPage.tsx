@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Minus, Plus } from 'lucide-react';
@@ -18,14 +18,21 @@ import Footer from '@/shared/components/Footer';
 import type { RootState } from '@/app/store';
 import type { CartItem } from '@/shared/types';
 import Image from 'next/image';
+import restaurantIcon from '@/assets/images/restaurant-icon.png';
+import bniLogo from '@/assets/images/bni.svg';
+import briLogo from '@/assets/images/bri.svg';
+import bcaLogo from '@/assets/images/bca.svg';
+import mandiriLogo from '@/assets/images/mandiri.svg';
+import locationLogo from '@/assets/images/location-logo.png'; 
 
 // Configuration
 const PAYMENT_METHODS = [
-  { id: 'bni', name: 'Bank Negara Indonesia', logo: '/bni.svg' },
-  { id: 'bri', name: 'Bank Rakyat Indonesia', logo: '/bri.svg' },
-  { id: 'bca', name: 'Bank Central Asia', logo: '/bca.svg' },
-  { id: 'mandiri', name: 'Mandiri', logo: '/mandiri.svg' },
+  { id: 'bni', name: 'Bank Negara Indonesia', logo: bniLogo },
+  { id: 'bri', name: 'Bank Rakyat Indonesia', logo: briLogo },
+  { id: 'bca', name: 'Bank Central Asia', logo: bcaLogo },
+  { id: 'mandiri', name: 'Mandiri', logo: mandiriLogo },
 ] as const;
+
 
 const DELIVERY_FEE = 10000;
 const SERVICE_FEE = 1000;
@@ -59,7 +66,7 @@ const AddressCard = ({ address, phone, isLoading, onEdit }: AddressCardProps) =>
         <div className='flex flex-row items-center gap-2'>
           <div className='w-6 h-6 flex-shrink-0 relative'>
             <Image
-              src="/location-logo.png"
+              src={locationLogo}
               alt="Location"
               fill
               className='object-contain'
@@ -213,9 +220,10 @@ const RestaurantGroup = ({ group, onQuantityChange, onNavigateToRestaurant }: Re
       <div className='flex flex-row items-center gap-2'>
         <div className='w-8 h-8 flex-shrink-0 relative'>
           <Image
-            src="/restaurant-icon.png"
+            src={restaurantIcon}
             alt={group.restaurantName}
             fill
+            sizes="32px"
             className='object-cover rounded'
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -377,6 +385,11 @@ const CheckoutPage: React.FC = () => {
 
   // State
   const [selectedPayment, setSelectedPayment] = useState<string>('bni');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Fetch user profile
   const { data: userProfile, isLoading: isProfileLoading } = useQuery({
@@ -472,11 +485,29 @@ const CheckoutPage: React.FC = () => {
         console.warn('Cart sync failed:', cartError);
       }
 
+      // Group cart items by restaurant
+      const restaurantItems = cartItems.reduce((acc, item) => {
+        const restaurantId = parseInt(item.restaurantId);
+        if (!acc[restaurantId]) {
+          acc[restaurantId] = {
+            restaurantId: restaurantId,
+            items: []
+          };
+        }
+        acc[restaurantId].items.push({
+          menuId: parseInt(item.id),
+          quantity: item.quantity,
+          notes: ''
+        });
+        return acc;
+      }, {} as Record<number, { restaurantId: number; items: any[] }>);
+
       // Create order via API
       const apiOrderData = {
-        paymentMethod: getPaymentMethodName(selectedPayment),
+        paymentMethod: selectedPayment, // Send ID (e.g., 'bni'), not name
         deliveryAddress: deliveryAddress,
         notes: '',
+        restaurants: Object.values(restaurantItems)
       };
 
       const response = await ordersApi.createOrder(apiOrderData);
@@ -514,18 +545,76 @@ const CheckoutPage: React.FC = () => {
       // Navigate to success page
       router.push('/success');
     } catch (error: any) {
-      console.error('Error creating order:', error);
-      if (error.response?.status === 401) {
-        alert('Authentication failed. Please log in again.');
-        window.location.reload();
-      } else if (error.response?.status === 400) {
-        const errorMessage = error.response?.data?.message || 'Invalid request data';
-        alert(`Bad Request: ${errorMessage}`);
-      } else {
-        alert('Failed to create order. Please try again.');
+      // COMPLETE DEBUG LOGGING
+      console.error('Error creating order (COMPLETE DEBUG):', {
+        rawError: error,
+        errorType: typeof error,
+        errorKeys: Object.keys(error || {}),
+        errorString: String(error),
+        errorJSON: JSON.stringify(error, null, 2),
+        isAxiosError: error?.isAxiosError,
+        message: error?.message,
+        status: error?.status,
+        response: error?.response
+      });
+
+      // Network / Offline Check
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        alert('You are offline. Please check your internet connection.');
+        return;
       }
+
+      // Network / CORS Error (Status 0 or "Network Error")
+      if (error?.status === 0 || error?.message === 'Network Error' || (error?.message && error?.message.includes('Failed to fetch'))) {
+        alert('Unable to connect to server. This might be a connection issue or the server is unreachable.');
+        return;
+      }
+      
+      // Authentication Error
+      if (error?.status === 401) {
+        alert('Session expired. Please log in again.');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login'; 
+        }
+        return;
+      }
+
+      // Bad Request
+      if (error?.status === 400) {
+        const serverMessage = error?.response?.data?.message || error?.message || 'Invalid order information.';
+        const validationErrors = error?.response?.data?.errors;
+        
+        console.error('Validation errors:', validationErrors);
+
+        if (Array.isArray(validationErrors)) {
+          const errorList = validationErrors.map((err: any) => {
+            const constraints = err.constraints ? Object.values(err.constraints).join(', ') : 'Invalid value';
+            return `${err.property}: ${constraints}`;
+          }).join('\n');
+          alert(`Please check:\n${errorList}`);
+        } else if (validationErrors && typeof validationErrors === 'object' && Object.keys(validationErrors).length > 0) {
+          const errorList = Object.entries(validationErrors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join('\n');
+          alert(`Please check:\n${errorList}`);
+        } else {
+          alert(`Validation Error: ${serverMessage}`);
+        }
+        return;
+      }
+
+      // Generic Error
+      const msg = error?.message || 'An unexpected error occurred.';
+      alert(`Checkout failed: ${msg}. Please try again.`);
     }
   };
+
+  // Prevent hydration mismatch
+  if (!isMounted) {
+    return null;
+  }
 
   // Empty cart state
   if (cartItems.length === 0) {

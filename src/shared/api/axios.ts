@@ -75,9 +75,10 @@ apiClient.interceptors.response.use(
     };
 
     // Developer logging for specific Network/CORS failures
-    if (error.code === 'ERR_NETWORK') {
+    if (error.code === 'ERR_NETWORK' || !error.response) {
       console.error('Network/CORS Error:', error.message);
       customizedError.message = 'Unable to connect to server. Please check your connection.';
+      customizedError.status = 0;
     }
 
     return Promise.reject(customizedError);

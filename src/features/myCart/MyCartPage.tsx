@@ -12,9 +12,10 @@ import ImageWithFallback from '@/shared/components/ImageWithFallback';
 import type { RootState } from '@/app/store';
 import type { CartItem, Restaurant } from '@/shared/types';
 import Image from 'next/image';
+import restaurantIcon from '@/assets/images/restaurant-icon.png';
 
 // Configuration
-const RESTAURANT_ICON = '/restaurant-icon.png';
+const RESTAURANT_ICON = restaurantIcon;
 const FOOD_PLACEHOLDER = '/images/food-placeholder.jpg';
 
 // Utility functions
@@ -151,16 +152,18 @@ const CartItemCard = ({ item, onQuantityChange, isMobile = false }: CartItemCard
       isMobile ? 'h-[74px]' : ''
     }`}>
       {/* Item Info */}
-      <div className={`flex flex-row items-center gap-${isMobile ? '4' : '6'} flex-1`}>
+      <div className={isMobile ? 'flex flex-row items-center gap-4 flex-1' : 'flex flex-row items-center gap-6 flex-1'}>
         {/* Item Image */}
-        <div className={`${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-xl flex-shrink-0`}>
-          <ImageWithFallback
-            src={item.imageUrl || FOOD_PLACEHOLDER}
-            alt={item.name}
-            className='w-full h-full object-cover rounded-xl'
-            fallbackText='No Image'
-          />
-        </div>
+        <ImageWithFallback
+          src={item.imageUrl || FOOD_PLACEHOLDER}
+          alt={item.name}
+          fill
+          sizes="(max-width: 768px) 64px, 80px"
+          containerClassName={isMobile ? 'w-16 h-16 rounded-xl shrink-0' : 'w-20 h-20 rounded-xl shrink-0'}
+          className='object-cover rounded-xl'
+          fallbackText='No Image'
+          unoptimized
+        />
 
         {/* Item Details */}
         <div className='flex flex-col items-start flex-1 min-w-0'>
@@ -219,6 +222,7 @@ const RestaurantGroup = ({
           src={RESTAURANT_ICON}
           alt={group.restaurantName}
           fill
+          sizes="32px"
           className='object-cover rounded'
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -329,6 +333,12 @@ const MyCartPage: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  // Prevent hydration mismatch by only rendering cart-dependent UI after mount
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Get unique restaurant IDs from cart items
   const restaurantIds = useMemo(() => 
@@ -411,6 +421,11 @@ const MyCartPage: React.FC = () => {
   const handleStartShopping = () => {
     router.push('/');
   };
+
+  // Show loading during SSR and initial mount
+  if (!isMounted) {
+    return <LoadingState />;
+  }
 
   // Loading state
   if (restaurantsLoading && cartItems.length > 0) {

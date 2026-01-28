@@ -1,12 +1,6 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Provider } from 'react-redux';
-import { store } from '@/app/store';
-import { AuthProvider } from '@/shared/context/AuthContext';
-import ErrorBoundary from '@/shared/components/ErrorBoundary';
+import { Providers } from './providers';
 import './globals.css';
 
 const nunito = Nunito({
@@ -15,16 +9,13 @@ const nunito = Nunito({
   variable: '--font-nunito',
 });
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 10 * 60 * 1000,
-      gcTime: 15 * 60 * 1000,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
+export const metadata: Metadata = {
+  title: 'LusianaRestaurant App',
+  description: 'A modern food ordering application',
+  icons: {
+    icon: '/icon.png',
   },
-});
+};
 
 export default function RootLayout({
   children,
@@ -34,15 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={nunito.className}>
-        <ErrorBoundary>
-          <Provider store={store}>
-            <QueryClientProvider client={queryClient}>
-              <AuthProvider>
-                {children}
-              </AuthProvider>
-            </QueryClientProvider>
-          </Provider>
-        </ErrorBoundary>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

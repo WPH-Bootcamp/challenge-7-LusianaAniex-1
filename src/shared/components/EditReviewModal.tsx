@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import type { Review } from '@/types';
+import type { Review } from '@/shared/types';
 
 interface EditReviewModalProps {
   isOpen: boolean;

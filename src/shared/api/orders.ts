@@ -82,12 +82,27 @@ export const ordersApi = {
     paymentMethod: string;
     deliveryAddress: string;
     notes?: string;
+    restaurants: Array<{
+      restaurantId: number;
+      items: Array<{
+        menuId: number;
+        quantity: number;
+        notes?: string;
+      }>;
+    }>;
   }): Promise<CreateOrderResponse> => {
-    const response = await apiClient.post<CreateOrderResponse>(
-      '/api/order/checkout',
-      orderData
-    );
-    return response.data;
+    console.log('API Request: createOrder', orderData);
+    try {
+      const response = await apiClient.post<CreateOrderResponse>(
+        '/api/order/checkout',
+        orderData
+      );
+      console.log('API Response: createOrder', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API Error: createOrder', error);
+      throw error;
+    }
   },
 
   getMyOrders: async (

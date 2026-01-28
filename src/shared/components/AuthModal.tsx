@@ -150,11 +150,27 @@ const AuthModal: React.FC<AuthModalProps> = ({
       }
       onClose();
     } catch (err: unknown) {
-      const errorMessage =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message || 'An error occurred'
-          : 'An error occurred';
+      // Log full error to console for debugging
+      console.error('Authentication error:', err);
+      
+      // Extract error message from response
+      let errorMessage = 'An error occurred';
+      
+      if (err && typeof err === 'object' && 'response' in err) {
+        const response = (err as any).response;
+        console.log('Error response:', response);
+        
+        // Try to get the most detailed error message
+        errorMessage = 
+          response?.data?.message || 
+          response?.data?.error || 
+          response?.statusText ||
+          `Server error (${response?.status})` ||
+          'An error occurred';
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -181,68 +197,61 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div
-      className='fixed inset-0 bg-black/50 flex items-center justify-center z-[999999] p-4 pt-12 md:pt-4'
+      className='fixed inset-0 z-[999999] flex'
       onClick={(e) => {
-        // Only close when clicking on the backdrop, not the modal content
+        // Only close when clicking on the backdrop
         if (e.target === e.currentTarget) {
           onClose();
         }
       }}
     >
-      <div
-        className='relative w-full max-w-[393px] md:max-w-6xl h-[800px] md:h-[1024px] bg-white rounded-2xl overflow-hidden'
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className='relative w-full h-full flex'>
         {/* Close Button */}
         <button
           onClick={onClose}
-          className='absolute top-6 right-6 z-20 w-10 h-10 bg-black/30 rounded-full flex items-center justify-center hover:bg-black/50 transition-all backdrop-blur-sm'
+          className='absolute top-6 right-6 z-20 w-10 h-10 bg-black/10 md:bg-white/10 rounded-full flex items-center justify-center hover:bg-black/20 md:hover:bg-white/20 transition-all backdrop-blur-sm'
         >
-          <X className='w-6 h-6 text-white' />
+          <X className='w-6 h-6 text-gray-700 md:text-white' />
         </button>
 
-        {/* Left Side - Food Image - Hidden on mobile */}
-        <div className='hidden md:block absolute left-0 top-0 w-1/2 h-full'>
+        {/* Left Side - Food Image - Hidden on mobile, 50% width on desktop */}
+        <div className='hidden md:block relative md:w-1/2 h-full'>
           <Image
             src={leftImageModal}
             alt='Food'
             fill
             className='object-cover'
             placeholder="blur"
+            priority
           />
         </div>
 
-        {/* Right Side - Form - Full width on mobile, half width on desktop */}
+        {/* Right Side - Form - Full width on mobile, 50% width on desktop, white background */}
         <div
-          className={`w-full md:absolute md:right-0 md:top-0 md:w-1/2 h-full flex justify-center ${
-            mode === 'login' ? 'items-center' : 'items-center pt-12 md:pt-30'
-          }`}
+          className='w-full md:w-1/2 h-full bg-white flex justify-center items-center'
+          onClick={(e) => e.stopPropagation()}
         >
           <div
-            className={`w-[345px] md:w-[300px] flex flex-col gap-3 md:gap-3 transition-all duration-300 ${
-              mode === 'register'
-                ? 'h-[680px] md:h-[520px]'
-                : 'h-[580px] md:h-[380px]'
-            } ${error ? 'justify-start' : 'justify-center'}`}
+            className={`w-[400px] max-w-[90%] flex flex-col gap-4 transition-all duration-300`}
           >
             {/* Logo */}
-            <div className='flex items-center gap-[11.43px]'>
+            <div className='flex items-center gap-3'>
               <Image
                 src={redLogo}
                 alt='Foody Logo'
-                className='w-8 h-8 md:w-10 md:h-10'
+                className='w-10 h-10'
               />
-              <span className='text-[24.381px] md:text-2xl font-extrabold text-[#0A0D12] leading-8 md:leading-none'>
+              <span className='text-2xl font-extrabold text-[#0A0D12]'>
                 Foody
               </span>
             </div>
 
             {/* Welcome Text */}
-            <div className='flex flex-col gap-0'>
-              <h1 className='text-2xl md:text-2xl font-extrabold text-[#0A0D12] leading-9 md:leading-none'>
+            <div className='flex flex-col gap-1'>
+              <h1 className='text-2xl font-extrabold text-[#0A0D12]'>
                 Welcome Back
               </h1>
-              <p className='text-sm md:text-sm font-medium text-[#0A0D12] leading-7 md:leading-none'>
+              <p className='text-sm font-medium text-[#0A0D12]'>
                 Good to see you again! Let's eat
               </p>
             </div>
@@ -252,32 +261,56 @@ const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type='button'
                 onClick={() => {
-                  setMode('login');
-                  onModeChange?.('login');
+                  if (mode !== 'login') {
+                    setMode('login');
+                    onModeChange?.('login');
+                    setError('');
+                    setFieldErrors({});
+                    setFormData({
+                      name: '',
+                      email: '',
+                      password: '',
+                      confirmPassword: '',
+                      phone: '',
+                      address: '',
+                    });
+                  }
                 }}
-                className={`flex-1 h-9 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center transition-all ${
+                className={`flex-1 h-10 rounded-xl flex items-center justify-center transition-all ${
                   mode === 'login'
                     ? 'bg-white shadow-[0px_0px_20px_rgba(203,202,202,0.25)] text-[#0A0D12] font-bold'
                     : 'text-[#535862] font-medium'
                 }`}
               >
-                <span className='text-sm md:text-sm leading-7 md:leading-none'>
+                <span className='text-sm'>
                   Sign in
                 </span>
               </button>
               <button
                 type='button'
                 onClick={() => {
-                  setMode('register');
-                  onModeChange?.('register');
+                  if (mode !== 'register') {
+                    setMode('register');
+                    onModeChange?.('register');
+                    setError('');
+                    setFieldErrors({});
+                    setFormData({
+                      name: '',
+                      email: '',
+                      password: '',
+                      confirmPassword: '',
+                      phone: '',
+                      address: '',
+                    });
+                  }
                 }}
-                className={`flex-1 h-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center transition-all ${
+                className={`flex-1 h-10 rounded-xl flex items-center justify-center transition-all ${
                   mode === 'register'
                     ? 'bg-white shadow-[0px_0px_20px_rgba(203,202,202,0.25)] text-[#0A0D12] font-bold'
                     : 'text-[#535862] font-medium'
                 }`}
               >
-                <span className='text-sm md:text-sm leading-7 md:leading-none'>
+                <span className='text-sm'>
                   Sign up
                 </span>
               </button>
@@ -286,7 +319,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className='flex flex-col gap-3 md:gap-2'
+              className='flex flex-col gap-3'
             >
               {/* Name Field - Only for Register */}
               {mode === 'register' && (
@@ -297,7 +330,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder='Name'
-                    className={`w-full h-12 md:h-10 px-3 py-2 border border-[#D5D7DA] rounded-xl md:rounded-xl text-sm md:text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                    className={`w-full h-11 px-3 py-2 border rounded-xl text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                       fieldErrors.name
                         ? 'border-red-500 focus:ring-red-500'
                         : 'border-[#D5D7DA] focus:ring-red-500'
@@ -319,7 +352,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder='Email'
-                  className={`w-full h-12 md:h-10 px-3 py-2 border border-[#D5D7DA] rounded-xl md:rounded-xl text-sm md:text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  className={`w-full h-11 px-3 py-2 border rounded-xl text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                     fieldErrors.email
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-[#D5D7DA] focus:ring-red-500'
@@ -341,7 +374,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder='Phone (e.g., +6281234567890)'
-                    className={`w-full h-12 md:h-10 px-3 py-2 border border-[#D5D7DA] rounded-xl md:rounded-xl text-sm md:text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                    className={`w-full h-11 px-3 py-2 border rounded-xl text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                       fieldErrors.phone
                         ? 'border-red-500 focus:ring-red-500'
                         : 'border-[#D5D7DA] focus:ring-red-500'
@@ -364,7 +397,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder='Password'
-                    className={`w-full h-12 md:h-10 px-3 py-2 pr-12 border border-[#D5D7DA] rounded-xl md:rounded-xl text-sm md:text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                    className={`w-full h-11 px-3 py-2 pr-12 border rounded-xl text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                       fieldErrors.password
                         ? 'border-red-500 focus:ring-red-500'
                         : 'border-[#D5D7DA] focus:ring-red-500'
@@ -399,7 +432,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       placeholder='Confirm Password'
-                      className={`w-full h-12 md:h-10 px-3 py-2 pr-12 border border-[#D5D7DA] rounded-xl md:rounded-xl text-sm md:text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                      className={`w-full h-11 px-3 py-2 pr-12 border rounded-xl text-sm placeholder-[#717680] focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                         fieldErrors.confirmPassword
                           ? 'border-red-500 focus:ring-red-500'
                           : 'border-[#D5D7DA] focus:ring-red-500'
@@ -442,7 +475,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   />
                   <label
                     htmlFor='rememberMe'
-                    className='text-sm md:text-sm font-medium text-[#0A0D12] leading-7 md:leading-none'
+                    className='text-sm font-medium text-[#0A0D12]'
                   >
                     Remember Me
                   </label>
@@ -460,7 +493,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type='submit'
                 disabled={isLoading}
-                className='w-full h-12 md:h-9 bg-[#C12116] text-[#FDFDFD] font-bold text-sm md:text-sm rounded-full hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                className='w-full h-11 bg-[#C12116] text-[#FDFDFD] font-bold text-sm rounded-full hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
               >
                 {isLoading ? (
                   <div className='flex items-center justify-center gap-2'>
@@ -480,7 +513,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type='button'
                 onClick={switchMode}
-                className='text-sm md:text-sm text-[#535862] hover:text-[#0A0D12] transition-colors'
+                className='text-sm text-[#535862] hover:text-[#0A0D12] transition-colors'
               >
                 {mode === 'login'
                   ? "Don't have an account? Register"

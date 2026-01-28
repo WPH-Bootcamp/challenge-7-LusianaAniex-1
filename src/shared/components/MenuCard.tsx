@@ -41,6 +41,7 @@ const MenuCard: React.FC<MenuCardProps> = ({
             className='object-cover rounded-t-2xl'
             onError={() => setImageError(true)}
             sizes="(max-width: 768px) 172px, 285px"
+            unoptimized
           />
         ) : (
           <div className='flex flex-col items-center justify-center text-gray-400'>

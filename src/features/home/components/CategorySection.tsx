@@ -30,6 +30,7 @@ const CategoryIcon = ({
         className='object-contain'
         onError={() => setError(true)}
         sizes="(max-width: 768px) 48px, 64px"
+        unoptimized
       />
     </div>
   );
@@ -86,7 +87,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                       : 'bg-white'
                   }`}
                 >
-                  <CategoryIcon icon={category.icon} name={category.name} />
+                  <CategoryIcon icon={category.icon || ''} name={category.name} />
                 </div>
                 <span
                   className={`text-sm md:text-lg-bold font-bold text-center leading-7 tracking-[-0.02em] font-nunito ${

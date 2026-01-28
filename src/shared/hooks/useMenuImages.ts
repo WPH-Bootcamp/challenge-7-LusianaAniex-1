@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { restaurantsApi } from '@/services/api/restaurants';
+import { restaurantsApi } from '@/shared/api/restaurants';
 
 interface MenuImage {
   [menuId: string]: string;
@@ -47,11 +47,22 @@ export const useMenuImages = (ordersData: OrderData | undefined) => {
       const restaurantMenuMap = new Map<string, string[]>();
 
       ordersData.data.orders.forEach((order) => {
-        order.restaurants?.forEach((restaurant) => {
-          const restaurantId = restaurant.restaurantId.toString();
+        if (!order || !order.restaurants) return;
+
+        order.restaurants.forEach((restaurant) => {
+          // Explicit null checks and type safety
+          if (!restaurant) return;
+          
+          const restaurantIdProp = restaurant.restaurantId;
+          // Handle valid 0 ID but reject null/undefined
+          if (restaurantIdProp === null || restaurantIdProp === undefined) return;
+          
+          const restaurantId = String(restaurantIdProp);
 
           const menuIds =
-            restaurant.items?.map((item) => item.menuId.toString()) || [];
+            restaurant.items
+              ?.filter((item) => item && (item.menuId !== null && item.menuId !== undefined))
+              ?.map((item) => String(item.menuId)) || [];
 
           if (restaurantId && menuIds.length > 0) {
             if (!restaurantMenuMap.has(restaurantId)) {

@@ -1,5 +1,5 @@
 import { apiClient } from './axios';
-import type { ApiResponse } from '@/types';
+import type { ApiResponse } from '@/shared/types';
 
 export interface CreateReviewRequest {
   transactionId: string;

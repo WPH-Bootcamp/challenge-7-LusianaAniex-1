@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Star, Share2 } from 'lucide-react';
@@ -21,6 +23,7 @@ import Footer from '../../shared/components/Footer';
 import ShowMoreButton from '../../shared/components/ShowMoreButton';
 import ImageWithFallback from '../../shared/components/ImageWithFallback';
 import { useImageGallery } from './hooks/useImageGallery';
+import restaurantPlaceholder from '@/assets/images/restaurant-placeholder.jpg';
 
 
 const RestaurantDetailPage: React.FC = () => {
@@ -94,6 +97,7 @@ const RestaurantDetailPage: React.FC = () => {
     return true;
   });
 
+
   // Fallback data for testing if API doesn't return data
   const fallbackMenus: MenuItem[] = [
     {
@@ -102,7 +106,7 @@ const RestaurantDetailPage: React.FC = () => {
       price: 50000,
       category: 'food',
       restaurantId: id || '',
-      image: '/src/assets/images/menu-placeholder.jpg',
+      image: restaurantPlaceholder.src,
     },
     {
       id: '2',
@@ -110,7 +114,7 @@ const RestaurantDetailPage: React.FC = () => {
       price: 45000,
       category: 'food',
       restaurantId: id || '',
-      image: '/src/assets/images/menu-placeholder.jpg',
+      image: restaurantPlaceholder.src,
     },
     {
       id: '3',
@@ -118,7 +122,7 @@ const RestaurantDetailPage: React.FC = () => {
       price: 15000,
       category: 'drink',
       restaurantId: id || '',
-      image: '/src/assets/images/menu-placeholder.jpg',
+      image: restaurantPlaceholder.src,
     },
   ];
 
@@ -327,8 +331,11 @@ const RestaurantDetailPage: React.FC = () => {
                   <ImageWithFallback
                     src={availableImages[currentImageIndex]}
                     alt={restaurant.name}
-                    className='w-full h-full object-cover rounded-2xl'
+                    fill
+                    containerClassName='w-full h-full'
+                    className='object-cover rounded-2xl'
                     fallbackText='No Image Available'
+                    unoptimized
                   />
                 </div>
 
@@ -372,8 +379,12 @@ const RestaurantDetailPage: React.FC = () => {
                     '/src/assets/images/restaurant-placeholder.jpg'
                   }
                   alt={restaurant.name}
-                  className='w-full h-full object-cover rounded-2xl'
+                  fill
+                  sizes="651px"
+                  containerClassName='w-full h-full'
+                  className='object-cover rounded-2xl'
                   fallbackText='No Image Available'
+                  unoptimized
                 />
               </div>
 
@@ -388,8 +399,12 @@ const RestaurantDetailPage: React.FC = () => {
                       '/src/assets/images/restaurant-placeholder.jpg'
                     }
                     alt={restaurant.name}
-                    className='w-full h-full object-cover rounded-2xl'
+                    fill
+                    sizes="529px"
+                    containerClassName='w-full h-full'
+                    className='object-cover rounded-2xl'
                     fallbackText='No Image'
+                    unoptimized
                   />
                 </div>
 
@@ -403,8 +418,12 @@ const RestaurantDetailPage: React.FC = () => {
                         '/src/assets/images/restaurant-placeholder.jpg'
                       }
                       alt={restaurant.name}
-                      className='w-full h-full object-cover rounded-2xl'
+                      fill
+                      sizes="255px"
+                      containerClassName='w-full h-full'
+                      className='object-cover rounded-2xl'
                       fallbackText='No Image'
+                      unoptimized
                     />
                   </div>
                   <div className='flex-1'>
@@ -415,8 +434,12 @@ const RestaurantDetailPage: React.FC = () => {
                         '/src/assets/images/restaurant-placeholder.jpg'
                       }
                       alt={restaurant.name}
-                      className='w-full h-full object-cover rounded-2xl'
+                      fill
+                      sizes="255px"
+                      containerClassName='w-full h-full'
+                      className='object-cover rounded-2xl'
                       fallbackText='No Image'
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -449,8 +472,12 @@ const RestaurantDetailPage: React.FC = () => {
                       '/src/assets/images/restaurant-placeholder.jpg'
                     }
                     alt={restaurant.name}
-                    className='w-full h-full object-cover rounded-full'
+                    fill
+                    sizes="60px"
+                    containerClassName='w-full h-full'
+                    className='object-cover rounded-full'
                     fallbackText='No Logo'
+                    unoptimized
                   />
                 </div>
 
@@ -565,8 +592,11 @@ const RestaurantDetailPage: React.FC = () => {
                   '/src/assets/images/restaurant-placeholder.jpg'
                 }
                 alt={restaurant.name}
-                className='w-full h-full object-cover'
+                fill
+                containerClassName='w-full h-full'
+                className='object-cover'
                 fallbackText='No Logo'
+                unoptimized
               />
             </div>
 

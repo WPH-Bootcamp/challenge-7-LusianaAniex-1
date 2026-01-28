@@ -1,5 +1,5 @@
-import Navbar from '../shared/components/Navbar';
-import HomePage from '../features/home/HomePage';
+import Navbar from '@/shared/components/Navbar';
+import HomePage from '@/features/home/HomePage';
 
 export default function Home() {
   return (

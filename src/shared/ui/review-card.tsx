@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Star, Edit3, Trash2 } from 'lucide-react';

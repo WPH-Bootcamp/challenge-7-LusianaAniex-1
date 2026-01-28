@@ -29,7 +29,7 @@ const OrderImage = ({ src, alt }: { src: string; alt: string }) => {
       className='object-cover rounded-xl relative z-20'
       onError={() => setError(true)}
       sizes="(max-width: 768px) 64px, 80px"
-      unoptimized={src.startsWith('data:')}
+      unoptimized
     />
   );
 };
@@ -184,51 +184,49 @@ const OrdersCard = () => {
         comment: comment,
       };
 
+      console.log('Submitting review:', reviewData); // Debug log
       await createReviewMutation.mutateAsync(reviewData);
       handleCloseReviewModal();
     } catch (error) {
       // Enhanced error handling
-      const axiosError = error as {
-        response?: {
-          status?: number;
-          data?: { message?: string; error?: string; details?: string };
-        };
+      const apiError = error as {
+        status?: number;
+        message?: string;
+        errors?: Record<string, string[]>;
       };
 
       console.error('Review submission error:', {
         error,
-        response: axiosError.response,
+        apiError,
         selectedOrder,
       });
 
       if (
-        axiosError.response?.status === 409 ||
-        axiosError.response?.data?.message?.includes('already reviewed')
+        apiError.status === 409 ||
+        apiError.message?.includes('already reviewed')
       ) {
         alert('You have already reviewed this restaurant!');
       } else if (
-        axiosError.response?.status === 400 &&
-        (axiosError.response?.data?.message?.includes(
+        apiError.status === 400 &&
+        (apiError.message?.includes(
           'only review restaurants you have ordered from'
         ) ||
-          axiosError.response?.data?.message?.includes('Transaction not found'))
+          apiError.message?.includes('Transaction not found'))
       ) {
         alert('You can only review restaurants you have ordered from!');
-      } else if (axiosError.response?.status === 401) {
+      } else if (apiError.status === 401) {
         alert('Please log in to submit a review');
       } else if (
-        axiosError.response?.status === 404 ||
-        axiosError.response?.data?.message?.includes('Transaction not found') ||
-        axiosError.response?.data?.message?.includes('does not belong to you')
+        apiError.status === 404 ||
+        apiError.message?.includes('Transaction not found') ||
+        apiError.message?.includes('does not belong to you')
       ) {
         alert(
           'This order was not found or does not belong to you. Please try refreshing the page.'
         );
       } else {
         const errorMessage =
-          axiosError.response?.data?.message ||
-          axiosError.response?.data?.error ||
-          axiosError.response?.data?.details ||
+          apiError.message ||
           'Unknown error occurred';
         alert(`Failed to submit review: ${errorMessage}`);
       }
@@ -239,7 +237,17 @@ const OrdersCard = () => {
   const mappedOrders =
     ordersData?.data.orders.map((apiOrder) => {
       const firstRestaurant = apiOrder.restaurants[0];
-      const restaurantId = Number(firstRestaurant?.restaurantId) || 1;
+      // Check for restaurantId (API spec), id (flat), or restaurant.id (nested structure)
+      const rawId = 
+        firstRestaurant?.restaurantId || 
+        (firstRestaurant as any)?.id || 
+        (firstRestaurant as any)?.restaurant?.id;
+      
+      const restaurantId = Number(rawId) || 0;
+
+      if (!restaurantId) {
+        console.warn('Missing restaurantId in order. Restaurants array:', apiOrder.restaurants);
+      }
       return {
         id: apiOrder.id.toString(),
         transactionId: apiOrder.transactionId, // Use actual transaction ID from API

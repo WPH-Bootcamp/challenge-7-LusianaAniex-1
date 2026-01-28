@@ -290,7 +290,7 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
                 placeholder='Enter your name'
               />
             ) : (
-              <span className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-[#0A0D12] flex-1 text-right'>
+              <span suppressHydrationWarning className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-[#0A0D12] flex-1 text-right'>
                 {isProfileLoading
                   ? 'Loading...'
                   : userProfile?.name || 'Johndoe'}
@@ -314,7 +314,7 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
                 placeholder='Enter your email'
               />
             ) : (
-              <span className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-[#0A0D12] flex-1 text-right'>
+              <span suppressHydrationWarning className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-[#0A0D12] flex-1 text-right'>
                 {isProfileLoading
                   ? 'Loading...'
                   : userProfile?.email || 'johndoe@email.com'}
@@ -338,7 +338,7 @@ const ProfileCard: React.FC<ProfileCardProps> = () => {
                 placeholder='Enter your phone number'
               />
             ) : (
-              <span className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-[#0A0D12] flex-1 text-right'>
+              <span suppressHydrationWarning className='h-7 font-nunito font-bold text-sm leading-7 tracking-[-0.02em] text-[#0A0D12] flex-1 text-right'>
                 {isProfileLoading
                   ? 'Loading...'
                   : userProfile?.phone || '081234567890'}

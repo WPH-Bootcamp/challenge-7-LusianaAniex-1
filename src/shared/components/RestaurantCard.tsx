@@ -72,6 +72,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           className='object-cover'
           onError={handleError}
           sizes="(max-width: 768px) 90px, 120px"
+          unoptimized
         />
       </div>
 

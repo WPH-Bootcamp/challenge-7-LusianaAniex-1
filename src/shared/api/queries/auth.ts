@@ -28,7 +28,10 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: async (credentials: LoginRequest) => {
       const response = await authApi.login(credentials);
-      localStorage.setItem('token', response.data.token);
+      // response is already ApiResponse<AuthResponse>, so response.data has { user, token }
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       return response;
     },
     onSuccess: () => {
@@ -43,7 +46,10 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: async (userData: RegisterRequest) => {
       const response = await authApi.register(userData);
-      localStorage.setItem('token', response.data.token);
+      // response is already ApiResponse<AuthResponse>, so response.data has { user, token }
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       return response;
     },
     onSuccess: () => {

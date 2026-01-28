@@ -43,6 +43,9 @@ const shouldClearCart = (): boolean => {
 
 // Helper function to load cart from localStorage
 const loadCartFromStorage = (): CartState => {
+  if (typeof window === 'undefined') {
+    return { items: [], total: 0 };
+  }
   try {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {

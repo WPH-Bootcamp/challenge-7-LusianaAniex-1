@@ -78,16 +78,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const credentials: LoginRequest = { email, password };
     const response = await loginMutation.mutateAsync(credentials);
 
-    // Store token based on rememberMe preference
-    if (rememberMe) {
-      localStorage.setItem('token', response.data.token);
-    } else {
-      // Use sessionStorage for non-remembered logins (cleared when browser closes)
-      sessionStorage.setItem('token', response.data.token);
+    // Token is already stored in the mutation, but we can store it here based on rememberMe
+    if (response.data && response.data.token) {
+      // Store token based on rememberMe preference
+      if (rememberMe) {
+        localStorage.setItem('token', response.data.token);
+      } else {
+        // Use sessionStorage for non-remembered logins (cleared when browser closes)
+        sessionStorage.setItem('token', response.data.token);
+      }
     }
 
-    setUser(response.data.user);
-    setIsAuthenticated(true);
+    if (response.data && response.data.user) {
+      setUser(response.data.user);
+      setIsAuthenticated(true);
+    }
 
     // Add a small delay before invalidating queries to ensure token is properly set
     setTimeout(() => {
@@ -99,10 +104,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (userData: RegisterRequest) => {
     const response = await registerMutation.mutateAsync(userData);
-    // Registration always uses localStorage (remembered by default)
-    localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    setIsAuthenticated(true);
+    
+    // Token is already stored in the mutation
+    if (response.data && response.data.token) {
+      // Registration always uses localStorage (remembered by default)
+      localStorage.setItem('token', response.data.token);
+    }
+    
+    if (response.data && response.data.user) {
+      setUser(response.data.user);
+      setIsAuthenticated(true);
+    }
 
     // Add a small delay before invalidating queries to ensure token is properly set
     setTimeout(() => {

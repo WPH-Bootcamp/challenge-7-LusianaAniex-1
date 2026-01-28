@@ -343,14 +343,16 @@ const CategoryPage: React.FC = () => {
         className='flex flex-row items-center p-3 gap-2 w-full h-[114px] bg-white rounded-2xl shadow-[0px_0px_20px_rgba(203,202,202,0.25)] cursor-pointer hover:shadow-[0px_0px_25px_rgba(203,202,202,0.35)] transition-shadow'
         onClick={() => handleRestaurantClick(restaurant.id.toString())}
       >
-        <div className='w-[90px] h-[90px] rounded-xl flex-shrink-0'>
-          <ImageWithFallback
-            src={restaurant.logo || '/images/restaurant-placeholder.jpg'}
-            alt={restaurant.name}
-            className='w-full h-full object-cover rounded-xl'
-            fallbackText='No Logo'
-          />
-        </div>
+        <ImageWithFallback
+          src={restaurant.logo || '/images/restaurant-placeholder.jpg'}
+          alt={restaurant.name}
+          fill
+          sizes="90px"
+          containerClassName='w-[90px] h-[90px] rounded-xl shrink-0'
+          className='object-cover rounded-xl'
+          fallbackText='No Logo'
+          unoptimized
+        />
 
         <div className='flex flex-col items-start px-0 gap-0.5 flex-1 h-[90px]'>
           <h3 className='font-nunito font-extrabold text-base leading-[30px] text-[#0A0D12] w-full h-[30px]'>

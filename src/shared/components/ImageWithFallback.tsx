@@ -4,6 +4,7 @@ import Image, { ImageProps } from 'next/image';
 interface ImageWithFallbackProps extends Omit<ImageProps, 'onError' | 'onLoad'> {
   fallbackText?: string;
   fallbackIcon?: React.ReactNode;
+  containerClassName?: string;  // For parent container when using fill
 }
 
 const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
@@ -12,10 +13,19 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   className = '',
   fallbackText = 'No Image',
   fallbackIcon,
+  width,
+  height,
+  fill,
+  containerClassName = '',
   ...props
 }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Validate that we have either dimensions OR fill prop
+  if (!fill && (!width || !height)) {
+    console.warn('ImageWithFallback: Either provide width/height or use fill prop');
+  }
 
   const handleError = () => {
     setHasError(true);
@@ -53,7 +63,7 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${containerClassName}`}>
       {isLoading && (
         <div
           className={`absolute inset-0 flex items-center justify-center bg-gray-100 z-10`}
@@ -64,7 +74,10 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
       <Image
         src={src}
         alt={alt}
-        className={`${isLoading ? 'invisible' : 'visible'}`}
+        width={width}
+        height={height}
+        fill={fill}
+        className={`${className} ${isLoading ? 'invisible' : 'visible'}`}
         onError={handleError}
         onLoad={handleLoad}
         {...props}

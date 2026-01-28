@@ -1,5 +1,5 @@
-import Navbar from '../../../shared/components/Navbar';
-import RestaurantDetailPage from '../../../features/detail/RestaurantDetailPage';
+import Navbar from '@/shared/components/Navbar';
+import RestaurantDetailPage from '@/features/detail/RestaurantDetailPage';
 
 
 export default function RestaurantPage({ params }: { params: { id: string } }) {
