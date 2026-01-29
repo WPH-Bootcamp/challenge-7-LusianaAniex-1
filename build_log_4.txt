@@ -1,0 +1,26 @@
+
+> restaurant-app@0.1.0 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 6.2s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/9) ...
+⨯ useSearchParams() should be wrapped in a suspense boundary at page "/profile". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at Q (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\.next\server\chunks\ssr\node_modules_cf1f3d2c._.js:2:2111)
+    at o (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\.next\server\chunks\ssr\node_modules_cf1f3d2c._.js:4:5284)
+    at C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\.next\server\chunks\ssr\src_features_profile_ProfilePage_tsx_9097a196._.js:5:3380
+    at an (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:84360)
+    at ai (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:86179)
+    at ai (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:104708)
+    at al (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:107953)
+    at as (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:105368)
+    at am (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:112882)
+    at ai (C:\Users\Aniex\github-classroom\challenge-7-LusianaAniex-1\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:98808)
+Error occurred prerendering page "/profile". Read more: https://nextjs.org/docs/messages/prerender-error
+Export encountered an error on /(with-navbar)/profile/page: /profile, exiting the build.
+⨯ Next.js build worker exited with code: 1 and signal: null

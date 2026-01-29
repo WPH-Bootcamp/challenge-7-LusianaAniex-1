@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ordersApi } from '@/services/api/orders';
+import { ordersApi } from '@/shared/api/orders';
 
 export function useOrdersQuery(status?: string) {
   return useQuery({
@@ -13,11 +13,7 @@ export function useCreateOrderMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (orderData: {
-      paymentMethod: string;
-      deliveryAddress: string;
-      notes?: string;
-    }) => {
+    mutationFn: async (orderData: Parameters<typeof ordersApi.createOrder>[0]) => {
       return await ordersApi.createOrder(orderData);
     },
     onSuccess: () => {

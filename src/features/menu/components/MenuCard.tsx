@@ -14,13 +14,24 @@ import { useAppDispatch } from '@/shared/store/hooks';
 
 interface MenuCardProps {
   item: MenuItem;
+  restaurantId: string;
+  restaurantName: string;
 }
 
-export function MenuCard({ item }: MenuCardProps) {
+export function MenuCard({ item, restaurantId, restaurantName }: MenuCardProps) {
   const dispatch = useAppDispatch();
 
   const handleAddToCart = () => {
-    dispatch(addToCart(item));
+    dispatch(addToCart({
+      id: item.id,
+      menuItemId: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      imageUrl: item.image,
+      restaurantId,
+      restaurantName,
+    }));
   };
 
   return (
@@ -58,7 +69,7 @@ export function MenuCard({ item }: MenuCardProps) {
         {/* Restaurant Name */}
         <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
           <span>🍴</span>
-          <span className="line-clamp-1">Burger King</span>
+          <span className="line-clamp-1">{restaurantName}</span>
         </p>
 
         {/* Category & Price Row */}
